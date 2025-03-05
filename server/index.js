@@ -18,6 +18,41 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('Error connecting to database:', err.message);
   } else {
     console.log('Connected to the papers database');
+    
+    // Initialize database tables
+    db.serialize(() => {
+      // Enable foreign keys
+      db.run('PRAGMA foreign_keys = ON');
+      
+      // Create papers table
+      db.run(`
+        CREATE TABLE IF NOT EXISTS papers (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          authors TEXT NOT NULL,
+          journal TEXT,
+          year INTEGER NOT NULL,
+          doi TEXT,
+          url TEXT,
+          abstract TEXT,
+          is_currently_reading INTEGER DEFAULT 0
+        )
+      `);
+      
+      // Create updates table
+      db.run(`
+        CREATE TABLE IF NOT EXISTS updates (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          paper_id INTEGER,
+          paper_title TEXT NOT NULL,
+          message TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          FOREIGN KEY (paper_id) REFERENCES papers (id) ON DELETE CASCADE
+        )
+      `);
+      
+      console.log('Database tables initialized');
+    });
   }
 });
 
@@ -118,6 +153,65 @@ app.get('/api/updates', (req, res) => {
     
     res.json(updates);
   });
+});
+
+// Create a new paper
+app.post('/api/papers', (req, res) => {
+  const { title, authors, journal, year, doi, url, abstract, isCurrentlyReading } = req.body;
+  
+  if (!title || !authors || !year) {
+    return res.status(400).json({ error: 'Title, authors, and year are required' });
+  }
+  
+  const authorsSerialized = JSON.stringify(authors);
+  
+  const sql = `
+    INSERT INTO papers (
+      title, authors, journal, year, doi, url, abstract, is_currently_reading
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  
+  db.run(
+    sql,
+    [title, authorsSerialized, journal, year, doi, url, abstract, isCurrentlyReading ? 1 : 0],
+    function(err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      // Create a new update record
+      const updateSql = `
+        INSERT INTO updates (paper_id, paper_title, message, timestamp)
+        VALUES (?, ?, ?, ?)
+      `;
+      
+      const now = new Date().toISOString();
+      const updateMessage = 'Added to library';
+      
+      db.run(
+        updateSql,
+        [this.lastID, title, updateMessage, now],
+        function(err) {
+          if (err) {
+            console.error('Error creating update record:', err);
+            // Still return success for the paper creation
+          }
+        }
+      );
+      
+      res.status(201).json({
+        id: this.lastID,
+        title,
+        authors,
+        journal,
+        year,
+        doi,
+        url,
+        abstract,
+        isCurrentlyReading
+      });
+    }
+  );
 });
 
 // Add health check endpoint
