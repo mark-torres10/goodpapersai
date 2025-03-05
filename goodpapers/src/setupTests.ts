@@ -3,3 +3,9 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+
+// Mock the fetch API
+global.fetch = jest.fn();
+
+// Setup for styled-components
+import 'jest-styled-components';
