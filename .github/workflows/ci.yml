@@ -25,6 +25,9 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
+      
+    - name: Install TypeScript and Babel dependencies
+      run: npm install -D typescript ts-jest @types/jest @babel/preset-env @babel/preset-typescript @babel/preset-react babel-jest
     
     - name: Run server tests
       run: npm run test:server

@@ -6,7 +6,8 @@ import * as arxivApi from '../../services/arxiv-api';
 
 // Mock the arxiv-api module
 jest.mock('../../services/arxiv-api');
-const mockArxivApi = arxivApi as jest.Mocked<typeof arxivApi>;
+// Use a more compatible approach without TypeScript assertion
+const mockArxivApi = arxivApi;
 
 // Mock extractArxivId to return valid ID for test URLs
 mockArxivApi.extractArxivId.mockImplementation((url) => {

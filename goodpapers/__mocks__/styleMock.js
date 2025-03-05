@@ -1,1 +1,2 @@
+// Style mock
 module.exports = {}; 
