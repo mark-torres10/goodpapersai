@@ -6,7 +6,6 @@ import * as arxivApi from '../../services/arxiv-api';
 
 // Mock the arxiv-api module
 jest.mock('../../services/arxiv-api');
-// Use a more compatible approach without TypeScript assertion
 const mockArxivApi = arxivApi;
 
 // Mock extractArxivId to return valid ID for test URLs
@@ -17,7 +16,7 @@ mockArxivApi.extractArxivId.mockImplementation((url) => {
 });
 
 // Mock for fetch function
-const mockFetchResponse = (responseData: any, status = 200): jest.Mock => {
+const mockFetchResponse = (responseData, status = 200) => {
   return jest.fn().mockImplementation(() => {
     return Promise.resolve({
       ok: status >= 200 && status < 300,
@@ -50,7 +49,7 @@ describe('AddFromArxivModal', () => {
     const input = screen.getByLabelText('ArXiv URL or ID');
     fireEvent.change(input, { target: { value: 'https://arxiv.org/abs/1234.5678' } });
     
-    expect((input as HTMLInputElement).value).toBe('https://arxiv.org/abs/1234.5678');
+    expect(input.value).toBe('https://arxiv.org/abs/1234.5678');
   });
   
   it('validates ArXiv URL format', async () => {
@@ -97,7 +96,7 @@ describe('AddFromArxivModal', () => {
       
       // Check for inputs that might contain the paper data
       const inputs = container.querySelectorAll('input');
-      const inputValues = Array.from(inputs).map(input => (input as HTMLInputElement).value);
+      const inputValues = Array.from(inputs).map(input => input.value);
       expect(inputValues.includes('Test Paper')).toBe(true);
     });
   });

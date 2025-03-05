@@ -29,7 +29,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:jest": "jest",
-    "test:component": "jest --config=jest.config.js --no-cache --transformIgnorePatterns=\"/node_modules/(?!(axios|react-router-dom|styled-components)/)\" src/components/paper/AddFromArxivModal.test.tsx",
+    "test:component": "jest src/components/paper/AddFromArxivModal.test.js",
     "test:utils": "react-scripts test --watchAll=false src/utils",
     "eject": "react-scripts eject"
   },

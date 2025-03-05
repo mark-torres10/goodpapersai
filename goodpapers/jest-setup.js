@@ -9,10 +9,7 @@ global.fetch = jest.fn(() =>
     ok: true,
     status: 200,
     json: jest.fn().mockResolvedValue({}),
-    text: jest.fn().mockResolvedValue(""),
-    headers: {
-      get: () => null
-    }
+    text: jest.fn().mockResolvedValue("")
   })
 );
 
