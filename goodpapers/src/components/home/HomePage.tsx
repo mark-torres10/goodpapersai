@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Paper, Update } from '../../types';
 import CurrentlyReadingSection from './CurrentlyReadingSection';
 import UpdatesSection from './UpdatesSection';
+import { getCurrentlyReadingPapers, getAllUpdates } from '../../services/api';
 
 const HomeContainer = styled.div`
   display: flex;
@@ -20,51 +21,56 @@ const UpdatesColumn = styled.div`
   flex: 2;
 `;
 
-// Sample data
-const samplePapers: Paper[] = [
-  {
-    id: '1',
-    title: 'Attention Is All You Need',
-    authors: ['Ashish Vaswani', 'Noam Shazeer', 'Niki Parmar', 'Jakob Uszkoreit', 'Llion Jones', 'Aidan N. Gomez', 'Łukasz Kaiser', 'Illia Polosukhin'],
-    journal: 'Advances in Neural Information Processing Systems',
-    year: 2017,
-    doi: '10.48550/arXiv.1706.03762',
-    isCurrentlyReading: true
-  },
-  {
-    id: '2',
-    title: 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding',
-    authors: ['Jacob Devlin', 'Ming-Wei Chang', 'Kenton Lee', 'Kristina Toutanova'],
-    year: 2018,
-    journal: 'arXiv preprint',
-    doi: '10.48550/arXiv.1810.04805',
-    isCurrentlyReading: true
-  }
-];
+const LoadingMessage = styled.p`
+  color: #767676;
+`;
 
-const sampleUpdates: Update[] = [
-  {
-    id: '1',
-    paperTitle: 'Attention Is All You Need',
-    message: 'Started reading',
-    timestamp: new Date(2023, 5, 10)
-  },
-  {
-    id: '2',
-    paperTitle: 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding',
-    message: 'Added to library',
-    timestamp: new Date(2023, 5, 8)
-  },
-  {
-    id: '3',
-    paperTitle: 'Attention Is All You Need',
-    message: 'Finished reading',
-    timestamp: new Date(2023, 5, 15)
-  }
-];
+const ErrorMessage = styled.p`
+  color: #b30000;
+`;
 
 const HomePage: React.FC = () => {
-  const currentlyReading = samplePapers.filter(paper => paper.isCurrentlyReading);
+  const [currentlyReading, setCurrentlyReading] = useState<Paper[]>([]);
+  const [updates, setUpdates] = useState<Update[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [readingPapers, paperUpdates] = await Promise.all([
+          getCurrentlyReadingPapers(),
+          getAllUpdates()
+        ]);
+        
+        setCurrentlyReading(readingPapers);
+        setUpdates(paperUpdates);
+      } catch (err) {
+        setError('Failed to load data');
+        console.error('Error fetching home page data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <HomeContainer>
+        <LoadingMessage>Loading data...</LoadingMessage>
+      </HomeContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <HomeContainer>
+        <ErrorMessage>{error}</ErrorMessage>
+      </HomeContainer>
+    );
+  }
   
   return (
     <HomeContainer>
@@ -72,7 +78,7 @@ const HomePage: React.FC = () => {
         <CurrentlyReadingSection papers={currentlyReading} />
       </CurrentlyReadingColumn>
       <UpdatesColumn>
-        <UpdatesSection updates={sampleUpdates} />
+        <UpdatesSection updates={updates} />
       </UpdatesColumn>
     </HomeContainer>
   );

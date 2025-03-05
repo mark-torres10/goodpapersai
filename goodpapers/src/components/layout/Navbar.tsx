@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import Logo from './Logo';
 
 const NavContainer = styled.nav`
   background-color: #f4f1ea;
@@ -42,13 +43,24 @@ const BrandContainer = styled.div`
   align-items: center;
 `;
 
+const NavContent = styled.div`
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+`;
+
 const Navbar: React.FC = () => {
   const location = useLocation();
   
   return (
     <NavContainer>
-      <BrandContainer>
-        <Brand>GoodPapers</Brand>
+      <NavContent>
+        <BrandContainer>
+          <Logo />
+          <Brand>GoodPapers</Brand>
+        </BrandContainer>
         <NavList>
           <NavItem>
             <NavLink to="/" $active={location.pathname === '/'}>
@@ -61,7 +73,7 @@ const Navbar: React.FC = () => {
             </NavLink>
           </NavItem>
         </NavList>
-      </BrandContainer>
+      </NavContent>
     </NavContainer>
   );
 };

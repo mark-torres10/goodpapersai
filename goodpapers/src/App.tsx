@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Navbar from './components/layout/Navbar';
 import HomePage from './components/home/HomePage';
 import LibraryPage from './components/library/LibraryPage';
+import PaperDetail from './components/library/PaperDetail';
 
 const AppContainer = styled.div`
   font-family: 'Merriweather', 'Georgia', serif;
@@ -20,6 +21,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/library" element={<LibraryPage />} />
+          <Route path="/library/:slug" element={<PaperDetail />} />
         </Routes>
       </AppContainer>
     </Router>
