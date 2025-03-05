@@ -3,13 +3,31 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
+const { syncPaperToKeystone, syncUpdateToKeystone } = require('./keystone-sync');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
+
+// Debug middleware for tracking requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Request received`);
+  console.log('Headers:', req.headers);
+  if (req.method === 'POST') {
+    console.log('Body:', req.body);
+  }
+  next();
+});
 
 // Connect to SQLite database
 const dbPath = path.join(__dirname, 'db', 'papers.db');
@@ -35,7 +53,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
           doi TEXT,
           url TEXT,
           abstract TEXT,
-          is_currently_reading INTEGER DEFAULT 0
+          is_currently_reading INTEGER DEFAULT 0,
+          reading_status TEXT DEFAULT 'add_to_library'
         )
       `);
       
@@ -47,6 +66,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
           paper_title TEXT NOT NULL,
           message TEXT NOT NULL,
           timestamp TEXT NOT NULL,
+          reading_status TEXT,
           FOREIGN KEY (paper_id) REFERENCES papers (id) ON DELETE CASCADE
         )
       `);
@@ -67,7 +87,8 @@ const formatPaper = (paper) => {
     doi: paper.doi,
     url: paper.url,
     abstract: paper.abstract,
-    isCurrentlyReading: paper.is_currently_reading === 1
+    isCurrentlyReading: paper.is_currently_reading === 1,
+    readingStatus: paper.reading_status || 'add_to_library'
   };
 };
 
@@ -148,7 +169,8 @@ app.get('/api/updates', (req, res) => {
       paperId: update.paper_id,
       paperTitle: update.paper_title,
       message: update.message,
-      timestamp: new Date(update.timestamp)
+      timestamp: new Date(update.timestamp),
+      readingStatus: update.reading_status || 'add_to_library'
     }));
     
     res.json(updates);
@@ -156,8 +178,8 @@ app.get('/api/updates', (req, res) => {
 });
 
 // Create a new paper
-app.post('/api/papers', (req, res) => {
-  const { title, authors, journal, year, doi, url, abstract, isCurrentlyReading } = req.body;
+app.post('/api/papers', async (req, res) => {
+  const { title, authors, journal, year, doi, url, abstract, isCurrentlyReading, readingStatus } = req.body;
   
   if (!title || !authors || !year) {
     return res.status(400).json({ error: 'Title, authors, and year are required' });
@@ -174,42 +196,91 @@ app.post('/api/papers', (req, res) => {
   db.run(
     sql,
     [title, authorsSerialized, journal, year, doi, url, abstract, isCurrentlyReading ? 1 : 0],
-    function(err) {
+    async function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
       
+      const paperId = this.lastID;
+      
+      // Determine the update message based on reading status
+      let updateMessage = 'Added to library';
+      if (readingStatus) {
+        switch (readingStatus) {
+          case 'want_to_read':
+            updateMessage = 'Added to "Want to Read" list';
+            break;
+          case 'started_reading':
+            updateMessage = 'Started reading';
+            break;
+          case 'finished_reading':
+            updateMessage = 'Finished reading';
+            break;
+        }
+      }
+      
       // Create a new update record
       const updateSql = `
-        INSERT INTO updates (paper_id, paper_title, message, timestamp)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO updates (paper_id, paper_title, message, timestamp, reading_status)
+        VALUES (?, ?, ?, ?, ?)
       `;
       
       const now = new Date().toISOString();
-      const updateMessage = 'Added to library';
       
       db.run(
         updateSql,
-        [this.lastID, title, updateMessage, now],
-        function(err) {
+        [paperId, title, updateMessage, now, readingStatus || 'add_to_library'],
+        async function(err) {
           if (err) {
             console.error('Error creating update record:', err);
             // Still return success for the paper creation
           }
+          
+          // Sync to KeystoneJS
+          try {
+            const paper = {
+              title,
+              authors: authorsSerialized,
+              journal,
+              year,
+              doi,
+              url,
+              abstract,
+              isCurrentlyReading,
+              readingStatus: readingStatus || 'add_to_library'
+            };
+            
+            const keystonePaperId = await syncPaperToKeystone(paper);
+            
+            const update = {
+              paperTitle: title,
+              message: updateMessage,
+              timestamp: now,
+              readingStatus: readingStatus || 'add_to_library'
+            };
+            
+            await syncUpdateToKeystone(update, keystonePaperId);
+            
+            console.log('Successfully synced paper and update to KeystoneJS');
+          } catch (syncError) {
+            console.error('Error syncing to KeystoneJS:', syncError);
+            // Don't fail the API response if KeystoneJS sync fails
+          }
+          
+          res.status(201).json({
+            id: paperId,
+            title,
+            authors,
+            journal,
+            year,
+            doi,
+            url,
+            abstract,
+            isCurrentlyReading,
+            readingStatus
+          });
         }
       );
-      
-      res.status(201).json({
-        id: this.lastID,
-        title,
-        authors,
-        journal,
-        year,
-        doi,
-        url,
-        abstract,
-        isCurrentlyReading
-      });
     }
   );
 });

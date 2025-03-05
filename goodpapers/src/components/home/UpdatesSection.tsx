@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Update } from '../../types';
+import { Update, ReadingStatus } from '../../types';
 
 const SectionContainer = styled.div`
   background-color: #f9f7f4;
@@ -34,6 +34,35 @@ const UpdatePaperTitle = styled.h3`
   color: #333333;
 `;
 
+const UpdateHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const StatusIndicator = styled.div<{ status?: ReadingStatus }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  ${({ status }) => {
+    switch (status) {
+      case 'want_to_read':
+        return 'background-color: #E8F4F8; color: #0099cc;';
+      case 'started_reading':
+        return 'background-color: #f3e9d2; color: #cc9900;';
+      case 'finished_reading':
+        return 'background-color: #e9f5e9; color: #2e7d32;';
+      default:
+        return 'background-color: #f5f5f5; color: #757575;';
+    }
+  }}
+`;
+
 const UpdateMessage = styled.p`
   margin: 0 0 0.5rem 0;
   color: #333333;
@@ -50,6 +79,40 @@ interface UpdatesSectionProps {
   updates: Update[];
 }
 
+const getStatusIcon = (status?: ReadingStatus): string => {
+  switch (status) {
+    case 'want_to_read':
+      return '📚'; // Bookshelf icon
+    case 'started_reading':
+      return '🔖'; // Bookmark icon
+    case 'finished_reading':
+      return '✓'; // Checkmark
+    default:
+      return '📄'; // Document icon
+  }
+};
+
+const getStatusText = (message: string, status?: ReadingStatus): string => {
+  // If the message already contains status info, just return it
+  if (message.includes('Added to') || 
+      message.includes('Started reading') || 
+      message.includes('Finished reading')) {
+    return message;
+  }
+  
+  // Otherwise, prepend status info to the message
+  switch (status) {
+    case 'want_to_read':
+      return `Added to "Want to Read" list`;
+    case 'started_reading':
+      return `Started reading`;
+    case 'finished_reading':
+      return `Finished reading`;
+    default:
+      return message;
+  }
+};
+
 const UpdatesSection: React.FC<UpdatesSectionProps> = ({ updates }) => {
   // Sort updates by timestamp (newest first)
   const sortedUpdates = [...updates].sort((a, b) => 
@@ -64,8 +127,15 @@ const UpdatesSection: React.FC<UpdatesSectionProps> = ({ updates }) => {
       ) : (
         sortedUpdates.map(update => (
           <UpdateItem key={update.id}>
-            <UpdatePaperTitle>{update.paperTitle}</UpdatePaperTitle>
-            <UpdateMessage>{update.message}</UpdateMessage>
+            <UpdateHeader>
+              <StatusIndicator status={update.readingStatus}>
+                {getStatusIcon(update.readingStatus)}
+              </StatusIndicator>
+              <UpdatePaperTitle>{update.paperTitle}</UpdatePaperTitle>
+            </UpdateHeader>
+            <UpdateMessage>
+              {getStatusText(update.message, update.readingStatus)}
+            </UpdateMessage>
             <UpdateTimestamp>{update.timestamp.toLocaleDateString()}</UpdateTimestamp>
           </UpdateItem>
         ))

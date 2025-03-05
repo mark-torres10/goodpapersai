@@ -38,7 +38,12 @@ var lists = {
         validation: { isRequired: true },
         isIndexed: "unique"
       }),
-      password: (0, import_fields.password)({ validation: { isRequired: true } })
+      password: (0, import_fields.password)({ validation: { isRequired: true } }),
+      createdAt: (0, import_fields.timestamp)({
+        defaultValue: { kind: "now" }
+      }),
+      updates: (0, import_fields.relationship)({ ref: "Update.user", many: true }),
+      papers: (0, import_fields.relationship)({ ref: "Paper.reader", many: true })
     }
   }),
   Paper: (0, import_core.list)({

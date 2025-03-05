@@ -12,6 +12,11 @@ export const lists = {
         isIndexed: 'unique',
       }),
       password: password({ validation: { isRequired: true } }),
+      createdAt: timestamp({
+        defaultValue: { kind: 'now' },
+      }),
+      updates: relationship({ ref: 'Update.user', many: true }),
+      papers: relationship({ ref: 'Paper.reader', many: true }),
     },
   }),
   
