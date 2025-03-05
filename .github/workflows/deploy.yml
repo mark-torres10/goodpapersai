@@ -1,0 +1,37 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Digital Ocean
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Add host key
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to server
+      run: |
+        rsync -avz --exclude 'node_modules' --exclude '.git' --exclude 'admin/node_modules' --exclude 'goodpapers/node_modules' ./ root@${{ secrets.DROPLET_IP }}:/var/www/goodpapers/repo/
+        
+    - name: Execute remote deploy script
+      run: |
+        ssh root@${{ secrets.DROPLET_IP }} "cd /var/www/goodpapers/repo && bash deploy.sh" 
