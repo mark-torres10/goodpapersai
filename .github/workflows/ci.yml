@@ -32,5 +32,8 @@ jobs:
     - name: Run component tests
       run: npm run test:component
     
+    - name: Run utility tests
+      run: npm run test:utils
+    
     - name: Run React tests
       run: npm test -- --watchAll=false 

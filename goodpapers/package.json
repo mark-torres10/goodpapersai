@@ -30,6 +30,7 @@
     "test": "react-scripts test",
     "test:jest": "jest",
     "test:component": "jest src/components/paper/AddFromArxivModal.test.tsx",
+    "test:utils": "react-scripts test --watchAll=false src/utils",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
