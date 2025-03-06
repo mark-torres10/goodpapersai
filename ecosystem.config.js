@@ -19,7 +19,7 @@ module.exports = {
       merge_logs: true,
       error_file: "/var/www/goodpapers/logs/server-error.log",
       out_file: "/var/www/goodpapers/logs/server-out.log",
-      env_file: '.env'
+      env_file: "./.env"
     },
     {
       name: 'goodpapers-admin',
