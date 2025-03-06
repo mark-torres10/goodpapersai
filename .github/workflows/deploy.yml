@@ -27,6 +27,10 @@ jobs:
       run: |
         ssh root@${{ secrets.DROPLET_IP }} "git config --global --add safe.directory /var/www/goodpapers/repo"
         
+    - name: Ensure directories exist
+      run: |
+        ssh root@${{ secrets.DROPLET_IP }} "mkdir -p /var/www/goodpapers/logs /var/www/goodpapers/repo"
+        
     - name: Deploy to server
       run: |
         rsync -avz --exclude 'node_modules' --exclude '.git' --exclude 'admin/node_modules' --exclude 'goodpapers/node_modules' ./ root@${{ secrets.DROPLET_IP }}:/var/www/goodpapers/repo/
