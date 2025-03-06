@@ -1,6 +1,6 @@
 """Pydantic models for the database."""
 
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -13,22 +13,28 @@ class Paper(BaseModel):
     paper_id: int
     title: str
     authors: list[str]
-    abstract: str
+    preview: str
     url: str
+    source: str
+    metadata_str: Optional[str] = None
     created_at: str
 
 
-class ArxivPaper(Paper):
+class ArxivPaper(BaseModel):
     """Pydantic model for a paper from Arxiv.
     
     Added to base database of all papers. Shared across all users.
+
+    Added as "metadata" to the base Paper model.
     """
     arxiv_id: str
-    categories: list[str]
-    comment: str
-    links: dict[str, str]
-    published_date: str
-    updated_date: str
+    arxiv_url: str
+    abstract: str
+    categories: Optional[list[str]] = None
+    comment: Optional[str] = None
+    links: Optional[dict[str, str]] = None
+    published_date: Optional[str] = None
+    updated_date: Optional[str] = None
 
 
 class Update(BaseModel):
@@ -64,6 +70,7 @@ class UserPaperRecord(BaseModel):
     paper_id: int
 
 
+# not stored in DB, but hydrated in memory.
 class UserPaperLibrary(BaseModel):
     """Pydantic model for a user's paper library."""
     user_paper_record_id: int

@@ -23,3 +23,13 @@ yarn-error.log*
 .env
 
 *.log
+
+# python-specific gitignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+*.vscode
