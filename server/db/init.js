@@ -16,8 +16,11 @@ db.serialize(() => {
     year INTEGER NOT NULL,
     doi TEXT,
     url TEXT,
+    arxiv_link TEXT,
     abstract TEXT,
-    is_currently_reading INTEGER DEFAULT 0
+    is_currently_reading INTEGER DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
   )`);
   
   db.run(`CREATE TABLE IF NOT EXISTS updates (

@@ -8,7 +8,11 @@ export interface ArxivPaper {
   year: number;
   doi?: string;
   url: string;
+  arxivLink?: string;
   journal?: string;
+  isDuplicate?: boolean;
+  existingPaper?: any;
+  message?: string;
 }
 
 /**

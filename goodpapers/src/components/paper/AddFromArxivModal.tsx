@@ -141,10 +141,14 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
   const [success, setSuccess] = useState<string | null>(null);
   const [paper, setPaper] = useState<ArxivPaper | null>(null);
   const [readingStatus, setReadingStatus] = useState<ReadingStatus>('add_to_library');
+  const [isDuplicate, setIsDuplicate] = useState(false);
+  const [existingPaper, setExistingPaper] = useState<any>(null);
   
   const handleArxivUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
     setArxivUrl(e.target.value);
     setError(null);
+    setIsDuplicate(false);
+    setExistingPaper(null);
   };
   
   const handleFetchPaper = async (e: FormEvent) => {
@@ -152,6 +156,8 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setIsDuplicate(false);
+    setExistingPaper(null);
     
     try {
       const arxivId = extractArxivId(arxivUrl);
@@ -161,6 +167,15 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
       }
       
       const paperData = await fetchArxivPaper(arxivId);
+      
+      // Check if the API returned a duplicate paper
+      if (paperData.isDuplicate && paperData.existingPaper) {
+        setIsDuplicate(true);
+        setExistingPaper(paperData.existingPaper);
+        // Set reading status to the existing paper's status
+        setReadingStatus(paperData.existingPaper.readingStatus || 'add_to_library');
+      }
+      
       setPaper(paperData);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch paper from ArXiv');
@@ -189,23 +204,57 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
     try {
       console.log('Sending paper data:', paper);
       
-      const response = await fetch('/api/papers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: paper.title,
-          authors: paper.authors,
-          abstract: paper.abstract,
-          year: paper.year,
-          doi: paper.doi || '',
-          url: paper.url,
-          journal: paper.journal || 'arXiv preprint',
-          isCurrentlyReading: readingStatus === 'started_reading',
-          readingStatus: readingStatus
-        }),
-      });
+      let response;
+      
+      if (isDuplicate && existingPaper) {
+        // If it's a duplicate, update the reading status instead of adding a new paper
+        response = await fetch(`/api/papers/${existingPaper.id}/reading-status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            readingStatus: readingStatus
+          }),
+        });
+        
+        if (response.ok) {
+          setSuccess('Paper reading status updated successfully!');
+        }
+      } else {
+        // Add a new paper if it's not a duplicate
+        response = await fetch('/api/papers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: paper.title,
+            authors: paper.authors,
+            abstract: paper.abstract,
+            year: paper.year,
+            doi: paper.doi || '',
+            url: paper.url,
+            arxivLink: paper.arxivLink || paper.url, // Store ArXiv link explicitly
+            journal: paper.journal || 'arXiv preprint',
+            isCurrentlyReading: readingStatus === 'started_reading',
+            readingStatus: readingStatus
+          }),
+        });
+        
+        if (response.ok) {
+          const responseData = await response.json();
+          
+          if (responseData.isDuplicate) {
+            // If the server found it was a duplicate even though we didn't catch it earlier
+            setIsDuplicate(true);
+            setExistingPaper(responseData);
+            setSuccess('This paper is already in your library. Reading status has been updated!');
+          } else {
+            setSuccess('Paper added successfully!');
+          }
+        }
+      }
       
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
@@ -229,9 +278,11 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
         throw new Error(errorMessage);
       }
       
-      setSuccess('Paper added successfully!');
+      // Only clear the form if everything was successful
       setArxivUrl('');
       setPaper(null);
+      setIsDuplicate(false);
+      setExistingPaper(null);
       
       // Reload the page after 1.5 seconds to refresh the data
       setTimeout(() => {
@@ -247,6 +298,47 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
   };
   
   if (!isOpen) return null;
+  
+  const renderDuplicateMessage = () => {
+    if (isDuplicate && existingPaper) {
+      return (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-3">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700">
+                This paper is already in your library. Current status: <strong>{formatReadingStatus(existingPaper.readingStatus)}</strong>
+              </p>
+              <p className="text-sm text-yellow-700 mt-1">
+                Added on: {new Date(existingPaper.createdAt).toLocaleDateString()}
+              </p>
+              <p className="text-sm text-yellow-700 mt-1">
+                Last updated: {new Date(existingPaper.updatedAt).toLocaleDateString()}
+              </p>
+              <p className="text-sm text-yellow-700 mt-2">
+                You can update its reading status below.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+  
+  const formatReadingStatus = (status: string): string => {
+    switch (status) {
+      case 'want_to_read': return 'Want to Read';
+      case 'started_reading': return 'Currently Reading';
+      case 'finished_reading': return 'Finished Reading';
+      case 'add_to_library': return 'In Library';
+      default: return status;
+    }
+  };
   
   return (
     <ModalOverlay onClick={onClose}>
@@ -281,6 +373,8 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
         
         {paper && (
           <Form>
+            {renderDuplicateMessage()}
+            
             <FormGroup>
               <Label htmlFor="title">Title</Label>
               <Input
@@ -288,7 +382,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 type="text"
                 value={paper.title}
                 onChange={(e) => handlePaperChange('title', e.target.value)}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -299,7 +393,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 type="text"
                 value={paper.authors.join(', ')}
                 onChange={(e) => handlePaperChange('authors', e.target.value.split(', '))}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -309,7 +403,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 id="abstract"
                 value={paper.abstract}
                 onChange={(e) => handlePaperChange('abstract', e.target.value)}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -320,7 +414,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 type="number"
                 value={paper.year}
                 onChange={(e) => handlePaperChange('year', parseInt(e.target.value))}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -331,7 +425,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 type="text"
                 value={paper.url}
                 onChange={(e) => handlePaperChange('url', e.target.value)}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -342,7 +436,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 type="text"
                 value={paper.doi || ''}
                 onChange={(e) => handlePaperChange('doi', e.target.value)}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -353,7 +447,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 type="text"
                 value={paper.journal || ''}
                 onChange={(e) => handlePaperChange('journal', e.target.value)}
-                disabled={loading}
+                disabled={loading || isDuplicate}
               />
             </FormGroup>
             
@@ -408,7 +502,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
                 onClick={handleAddPaper}
                 disabled={loading}
               >
-                {loading ? 'Adding...' : 'Add Paper'}
+                {loading ? 'Processing...' : isDuplicate ? 'Update Status' : 'Add Paper'}
               </Button>
             </ButtonGroup>
           </Form>

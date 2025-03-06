@@ -21,9 +21,12 @@ function createTestDatabase() {
           year INTEGER NOT NULL,
           doi TEXT,
           url TEXT,
+          arxiv_link TEXT,
           abstract TEXT,
           is_currently_reading INTEGER DEFAULT 0,
-          reading_status TEXT DEFAULT 'add_to_library'
+          reading_status TEXT DEFAULT 'add_to_library',
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
       `, (err) => {
         if (err) reject(err);
