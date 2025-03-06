@@ -43,7 +43,7 @@ export const extractArxivId = (input: string): string | null => {
  */
 export const fetchArxivPaper = async (arxivId: string): Promise<ArxivPaper> => {
   try {
-    const response = await axios.get(`http://export.arxiv.org/api/query?id_list=${arxivId}`);
+    const response = await axios.get(`https://export.arxiv.org/api/query?id_list=${arxivId}`);
     const parser = new XMLParser({
       ignoreAttributes: false,
       attributeNamePrefix: "@_"

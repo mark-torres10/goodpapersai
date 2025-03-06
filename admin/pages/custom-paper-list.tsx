@@ -52,7 +52,7 @@ const extractArxivId = (input: string): string | null => {
 const fetchArxivPaper = async (arxivId: string): Promise<ArXivPaper> => {
   try {
     const response = await fetch(
-      `http://export.arxiv.org/api/query?id_list=${arxivId}`
+      `https://export.arxiv.org/api/query?id_list=${arxivId}`
     );
     
     if (!response.ok) {
