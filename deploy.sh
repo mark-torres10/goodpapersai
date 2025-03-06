@@ -4,9 +4,9 @@
 # This script deploys the GoodPapers application to a production server
 
 # Configuration variables
-SERVER_IP="161.35.180.213"
-SSH_KEY="~/.ssh/goodpapers_digitalocean"
-DEPLOY_DIR="/root/goodpapers-deploy"
+APP_DIR="/var/www/goodpapers"
+REPO_DIR="${APP_DIR}/repo"
+LOGS_DIR="${APP_DIR}/logs"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -17,36 +17,47 @@ NC='\033[0m' # No Color
 # Function for logging
 log() {
     echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" >> "${LOGS_DIR}/auto_deploy.log"
 }
 
 error() {
     echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1" >> "${LOGS_DIR}/auto_deploy.log"
     exit 1
 }
 
 warning() {
     echo -e "${YELLOW}[$(date +'%Y-%m-%d %H:%M:%S')] WARNING: $1${NC}"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] WARNING: $1" >> "${LOGS_DIR}/auto_deploy.log"
 }
 
-# Step 1: Ensure the deploy directory exists on the server
-log "Ensuring deployment directory exists on server..."
-ssh -i $SSH_KEY root@$SERVER_IP "mkdir -p $DEPLOY_DIR"
-ssh -i $SSH_KEY root@$SERVER_IP "mkdir -p $DEPLOY_DIR/deploy"
+# Ensure log directory exists
+mkdir -p "${LOGS_DIR}"
 
-# Step 2: Copy deployment files
-log "Copying deployment files to server..."
-rsync -avz -e "ssh -i $SSH_KEY" . root@$SERVER_IP:$DEPLOY_DIR/ --exclude node_modules --exclude .git --exclude admin/node_modules --exclude goodpapers/node_modules --exclude goodpapers/build
+# Step 1: Install dependencies if needed
+log "Installing server dependencies..."
+cd "${REPO_DIR}" && npm install
 
-# Step 3: Explicitly copy deployment directory contents
-log "Copying deployment scripts and configuration..."
-rsync -avz -e "ssh -i $SSH_KEY" deploy/ root@$SERVER_IP:$DEPLOY_DIR/deploy/
+# Step 2: Install admin site dependencies
+log "Installing admin site dependencies..."
+cd "${REPO_DIR}/admin" && npm install
 
-# Step 4: Make scripts executable on the server
-log "Making deployment scripts executable..."
-ssh -i $SSH_KEY root@$SERVER_IP "chmod +x $DEPLOY_DIR/deploy/deploy.sh $DEPLOY_DIR/deploy/env_setup.sh"
+# Step 3: Build admin site
+log "Building admin site..."
+cd "${REPO_DIR}/admin" && npm run build
 
-# Step 5: Execute the deploy script on the server
-log "Executing deployment script on server..."
-ssh -i $SSH_KEY root@$SERVER_IP "cd $DEPLOY_DIR && bash deploy/deploy.sh"
+# Step 4: Install frontend dependencies
+log "Installing frontend dependencies..."
+cd "${REPO_DIR}/goodpapers" && npm install
+
+# Step 5: Build frontend
+log "Building frontend..."
+cd "${REPO_DIR}/goodpapers" && npm run build
+
+# Step 6: Restart services
+log "Restarting services..."
+pm2 restart goodpapers-server
+pm2 restart goodpapers-admin
+pm2 restart goodpapers-frontend-serve
 
 log "Deployment completed!" 
