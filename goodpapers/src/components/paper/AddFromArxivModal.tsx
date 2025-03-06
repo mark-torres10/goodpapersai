@@ -189,7 +189,7 @@ const AddFromArxivModal: React.FC<AddFromArxivModalProps> = ({ isOpen, onClose }
     try {
       console.log('Sending paper data:', paper);
       
-      const response = await fetch('http://localhost:3001/api/papers', {
+      const response = await fetch('/api/papers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

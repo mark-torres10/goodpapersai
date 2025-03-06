@@ -43,47 +43,9 @@ export const extractArxivId = (input: string): string | null => {
  */
 export const fetchArxivPaper = async (arxivId: string): Promise<ArxivPaper> => {
   try {
-    const response = await axios.get(`https://export.arxiv.org/api/query?id_list=${arxivId}`);
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: "@_"
-    });
-    
-    const result = parser.parse(response.data);
-    
-    if (!result.feed.entry) {
-      throw new Error('No paper found with that ID');
-    }
-    
-    const entry = result.feed.entry;
-    
-    // Extract authors (could be single author or array)
-    let authorsList = [];
-    if (Array.isArray(entry.author)) {
-      authorsList = entry.author.map((author: any) => author.name);
-    } else if (entry.author && entry.author.name) {
-      authorsList = [entry.author.name];
-    }
-    
-    // Extract year from published date
-    const publishedDate = new Date(entry.published);
-    const year = publishedDate.getFullYear();
-    
-    // Extract DOI if available
-    let doi = undefined;
-    if (entry.doi) {
-      doi = entry.doi;
-    }
-    
-    return {
-      title: entry.title.trim(),
-      authors: authorsList,
-      abstract: entry.summary.trim(),
-      year,
-      doi,
-      url: `https://arxiv.org/abs/${arxivId}`,
-      journal: 'arXiv preprint'
-    };
+    // Use server endpoint instead of directly calling ArXiv
+    const response = await axios.post(`/api/papers/fetch-arxiv`, { arxivId });
+    return response.data;
   } catch (error: any) {
     console.error('Error fetching paper from ArXiv:', error);
     throw new Error(`Failed to fetch paper: ${error.message}`);
