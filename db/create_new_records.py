@@ -2,8 +2,11 @@
 from typing import Literal
 
 from api.arxiv_fetch_api import fetch_paper_from_arxiv_given_url
-from db.models import ArxivPaper, Update
+from db.models import ArxivPaper, Update, User
 from lib.helper import generate_current_datetime_str
+from lib.logger import get_logger
+
+logger = get_logger(__name__)
 
 # default ID to add for records until the ID is assigned by the database
 default_stub_id = 999
@@ -55,3 +58,15 @@ def user_adds_new_arxiv_paper(
         "arxiv_paper": arxiv_paper,
         "update": update,
     }
+
+
+def create_new_user(email: str, name: str, username: str) -> User:
+    logger.info(f"Creating new user with email: {email}, name: {name}, username: {username}")
+    user = User(
+        user_id=default_stub_id,
+        email=email,
+        name=name,
+        username=username,
+        created_at=generate_current_datetime_str(),
+    )
+    return user

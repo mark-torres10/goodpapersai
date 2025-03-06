@@ -58,6 +58,19 @@ class User(BaseModel):
     created_at: str
 
 
+class UserPaperRecord(BaseModel):
+    """Pydantic model for a user's paper."""
+    user_id: int
+    paper_id: int
+
+
+class UserPaperLibrary(BaseModel):
+    """Pydantic model for a user's paper library."""
+    user_paper_record_id: int
+    user_id: int
+    paper_ids: list[int]
+
+
 class UserPaperCustomizations(BaseModel):
     """Pydantic model for user-specific customizations to their paper."""
     pass
