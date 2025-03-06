@@ -6,6 +6,9 @@ const {
   dbRun 
 } = require('./db-utils');
 
+// Import fetch for Node.js environment
+const fetch = require('node-fetch');
+
 // Mock the actual server endpoints
 const express = require('express');
 const cors = require('cors');
