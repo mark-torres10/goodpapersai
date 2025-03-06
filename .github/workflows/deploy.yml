@@ -23,6 +23,10 @@ jobs:
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
         
+    - name: Fix Git ownership issue
+      run: |
+        ssh root@${{ secrets.DROPLET_IP }} "git config --global --add safe.directory /var/www/goodpapers/repo"
+        
     - name: Deploy to server
       run: |
         rsync -avz --exclude 'node_modules' --exclude '.git' --exclude 'admin/node_modules' --exclude 'goodpapers/node_modules' ./ root@${{ secrets.DROPLET_IP }}:/var/www/goodpapers/repo/
