@@ -36,11 +36,11 @@ mkdir -p "${LOGS_DIR}"
 
 # Step 1: Install dependencies if needed
 log "Installing server dependencies..."
-cd "${REPO_DIR}" && npm install
+cd "${REPO_DIR}" && npm install --legacy-peer-deps
 
 # Step 2: Install admin site dependencies
 log "Installing admin site dependencies..."
-cd "${REPO_DIR}/admin" && npm install
+cd "${REPO_DIR}/admin" && npm install --legacy-peer-deps
 
 # Step 3: Build admin site
 log "Building admin site..."
@@ -48,7 +48,7 @@ cd "${REPO_DIR}/admin" && npm run build
 
 # Step 4: Install frontend dependencies
 log "Installing frontend dependencies..."
-cd "${REPO_DIR}/goodpapers" && npm install
+cd "${REPO_DIR}/goodpapers" && npm install --legacy-peer-deps
 
 # Step 5: Build frontend
 log "Building frontend..."

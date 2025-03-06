@@ -31,7 +31,9 @@ export const lists = {
       url: text(),
       abstract: text({ ui: { displayMode: 'textarea' } }),
       isCurrentlyReading: checkbox({ defaultValue: false }),
+      readingStatus: text(),
       updates: relationship({ ref: 'Update.paper', many: true }),
+      reader: relationship({ ref: 'User.papers', many: true }),
     },
     ui: {
       labelField: 'title',
@@ -45,9 +47,11 @@ export const lists = {
     access: allowAll,
     fields: {
       paper: relationship({ ref: 'Paper.updates' }),
+      user: relationship({ ref: 'User.updates' }),
       paperTitle: text({ validation: { isRequired: true } }),
       message: text({ validation: { isRequired: true } }),
       timestamp: timestamp({ defaultValue: { kind: 'now' } }),
+      readingStatus: text(),
     },
     ui: {
       labelField: 'message',
