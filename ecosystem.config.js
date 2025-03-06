@@ -10,11 +10,16 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3001
       },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 3001
+      },
       exp_backoff_restart_delay: 100,
       watch: false,
       merge_logs: true,
       error_file: "/var/www/goodpapers/logs/server-error.log",
-      out_file: "/var/www/goodpapers/logs/server-out.log"
+      out_file: "/var/www/goodpapers/logs/server-out.log",
+      env_file: '.env'
     },
     {
       name: 'goodpapers-admin',
