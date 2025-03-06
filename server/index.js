@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:3000', 'https://goodpapersai.com', 'http://localhost:3002'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -283,6 +283,68 @@ app.post('/api/papers', async (req, res) => {
       );
     }
   );
+});
+
+// Fetch paper from ArXiv
+app.post('/api/papers/fetch-arxiv', async (req, res) => {
+  try {
+    const { arxivId } = req.body;
+    
+    if (!arxivId) {
+      return res.status(400).json({ error: 'ArXiv ID is required' });
+    }
+    
+    // Fetch from ArXiv API
+    const axios = require('axios');
+    const { XMLParser } = require('fast-xml-parser');
+    
+    const response = await axios.get(`https://export.arxiv.org/api/query?id_list=${arxivId}`);
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_"
+    });
+    
+    const result = parser.parse(response.data);
+    
+    if (!result.feed.entry) {
+      return res.status(404).json({ error: 'No paper found with that ID' });
+    }
+    
+    const entry = result.feed.entry;
+    
+    // Extract authors (could be single author or array)
+    let authorsList = [];
+    if (Array.isArray(entry.author)) {
+      authorsList = entry.author.map(author => author.name);
+    } else if (entry.author && entry.author.name) {
+      authorsList = [entry.author.name];
+    }
+    
+    // Extract year from published date
+    const publishedDate = new Date(entry.published);
+    const year = publishedDate.getFullYear();
+    
+    // Extract DOI if available
+    let doi = undefined;
+    if (entry.doi) {
+      doi = entry.doi;
+    }
+    
+    const paper = {
+      title: entry.title.trim(),
+      authors: authorsList,
+      abstract: entry.summary.trim(),
+      year,
+      doi,
+      url: `https://arxiv.org/abs/${arxivId}`,
+      journal: 'arXiv preprint'
+    };
+    
+    res.json(paper);
+  } catch (error) {
+    console.error('Error fetching paper from ArXiv:', error);
+    res.status(500).json({ error: 'Failed to fetch paper from ArXiv' });
+  }
 });
 
 // Add health check endpoint
