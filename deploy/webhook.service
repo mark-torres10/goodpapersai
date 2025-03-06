@@ -1,0 +1,17 @@
+[Unit]
+Description=GitHub Webhook for GoodPapers Auto Deployment
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/deployment
+ExecStart=/usr/bin/node /root/deployment/webhook.js
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=goodpapers-webhook
+
+[Install]
+WantedBy=multi-user.target 

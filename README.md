@@ -34,8 +34,13 @@ The application can be deployed to a production server using the deployment scri
   - `env_setup.sh` - Utility functions for environment setup
   - `deploy.sh` - Server-side deployment script
   - `README.md` - Documentation for the deployment process
+  - `auto_deploy.sh` - Script for automatic deployment from GitHub
+  - `webhook.js` - Webhook listener for GitHub events
+  - `webhook.service` - Systemd service for the webhook
 
-### How to Deploy
+### Manual Deployment
+
+To manually deploy the application:
 
 1. Make sure your SSH key for the server is properly set up at `~/.ssh/goodpapers_digitalocean`
 2. Run the deployment script from the project root:
@@ -43,5 +48,16 @@ The application can be deployed to a production server using the deployment scri
 ```bash
 ./deploy.sh
 ```
+
+### Continuous Deployment
+
+The repository is set up with continuous deployment through GitHub Actions. Whenever you push to the `main` branch, the changes are automatically deployed to the production server.
+
+#### GitHub Configuration
+
+For the GitHub Actions workflow to function, the following secrets need to be set in the repository:
+
+1. `SSH_PRIVATE_KEY` - The private SSH key for accessing the server 
+2. `DROPLET_IP` - The IP address of the Digital Ocean droplet (161.35.180.213)
 
 For more detailed information about the deployment process, see [deploy/README.md](deploy/README.md) and [PRODUCTION.md](PRODUCTION.md).
