@@ -1,1 +1,3 @@
+# Ignore sensitive files
 GITHUB_SETUP.md
+webhook_secret.txt
