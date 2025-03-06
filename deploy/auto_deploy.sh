@@ -20,6 +20,10 @@ mkdir -p "$APP_DIR/logs"
 
 log "Starting auto-deployment process"
 
+# Mark repository directory as safe (to avoid dubious ownership errors)
+log "Marking repository directory as safe"
+git config --global --add safe.directory "$REPO_DIR"
+
 # Initialize Git repository if not already done
 if [ ! -d "$REPO_DIR/.git" ]; then
   log "Git repository not found in $REPO_DIR. Initializing..."
