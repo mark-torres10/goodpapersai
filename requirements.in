@@ -1,0 +1,26 @@
+# Django and Django REST Framework
+Django==4.2.10
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+django-filter==23.5
+
+# Database
+psycopg2-binary==2.9.9
+
+# Authentication and Security
+python-jose==3.3.0
+social-auth-app-django==5.4.0
+
+# API Documentation
+drf-yasg==1.21.7
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Supabase
+supabase==2.2.0
+
+# Other utilities
+requests==2.31.0
+gunicorn==21.2.0
+pip-tools==7.3.0
