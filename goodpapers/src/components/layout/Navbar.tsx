@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from './Logo';
 import AddFromArxivModal from '../paper/AddFromArxivModal';
+import { useAuth } from '../../contexts/AuthContext';
 
 const NavContainer = styled.nav`
   background-color: #f4f1ea;
@@ -75,9 +76,42 @@ const AddButton = styled.button`
   }
 `;
 
+const UserSection = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+`;
+
+const UserName = styled.span`
+  margin-right: 1rem;
+  font-weight: 500;
+  color: #333;
+`;
+
+const LogoutButton = styled.button`
+  background-color: transparent;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: #f8f8f8;
+    border-color: #ccc;
+  }
+`;
+
 const Navbar: React.FC = () => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, logout } = useAuth();
+  
+  const handleLogout = () => {
+    logout();
+  };
   
   return (
     <NavContainer>
@@ -89,7 +123,7 @@ const Navbar: React.FC = () => {
           </BrandContainer>
           <NavList>
             <NavItem>
-              <NavLink to="/" $active={location.pathname === '/'}>
+              <NavLink to="/home" $active={location.pathname === '/home'}>
                 Home
               </NavLink>
             </NavItem>
@@ -101,9 +135,13 @@ const Navbar: React.FC = () => {
           </NavList>
         </NavLinksContainer>
         
-        <AddButton onClick={() => setIsModalOpen(true)}>
-          Add from ArXiv
-        </AddButton>
+        <UserSection>
+          {user && <UserName>Hello, {user.name}</UserName>}
+          <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+          <AddButton onClick={() => setIsModalOpen(true)}>
+            Add from ArXiv
+          </AddButton>
+        </UserSection>
         
         {isModalOpen && <AddFromArxivModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />}
       </NavContent>

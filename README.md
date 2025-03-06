@@ -1,66 +1,79 @@
-# Goodpapers AI
+# GoodPapers
 
-Goodreads, but for academic literature.
+GoodPapers is a research paper management application for scholars and researchers. It allows users to add, organize, and track their reading progress on academic papers.
+
+## Authentication Features
+
+GoodPapers now includes a complete user authentication system:
+
+- **Google OAuth Authentication**: Users can log in with their Google accounts
+- **User Management**: New users can create accounts with their name and email
+- **Protected Routes**: Application content is only accessible to authenticated users
+- **Session Management**: JWT-based authentication with secure HTTP-only cookies
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+# Install server dependencies
+npm install
+
+# Install frontend dependencies
+cd goodpapers && npm install
+```
+
+### 2. Set up Google OAuth Credentials
+
+Run the setup script to get guided instructions for creating OAuth credentials:
+
+```bash
+npm run setup:oauth
+```
+
+After obtaining your Google OAuth credentials, add them to the `.env` file in the project root:
+
+```
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+JWT_SECRET=your-jwt-secret
+SESSION_SECRET=your-session-secret
+```
+
+### 3. Start the Application
+
+```bash
+# Start the server (in one terminal)
+npm start
+
+# Start the frontend (in another terminal)
+cd goodpapers && npm start
+```
+
+## Authentication Flow
+
+1. Users visit the site and are redirected to `/login`
+2. The login page provides a "Sign in with Google" button
+3. After successful Google authentication:
+   - If the user already exists, they are logged in and redirected to `/home`
+   - If the user is new, they are redirected to `/create-account` to complete registration
+4. Once authenticated, users have access to all protected routes
+
+## Development Notes
+
+- The authentication is implemented using Passport.js with Google OAuth2 strategy
+- JWTs are stored in HTTP-only cookies for secure client-side storage
+- User data is stored in the SQLite database
+- Protected routes are managed through a `ProtectedRoute` component in React
+
+## Production Deployment
+
+When deploying to production, make sure to:
+
+1. Use real, secure values for `JWT_SECRET` and `SESSION_SECRET`
+2. Configure Google OAuth with the production domain
+3. Set `NODE_ENV=production` in your environment variables
 
 ## Running the Application
 
 ### UI (Frontend)
-
-1. Navigate to the `goodpapers` directory
-2. Run `npm start`
-3. The UI will be available at `http://localhost:3000`
-
-### Server (Backend)
-
-1. Navigate to the `goodpapers` directory
-2. Run `node server/index.js`
-3. The API server will run on `http://localhost:3001`
-
-### Admin Interface
-
-1. Navigate to the `goodpapers/admin` directory
-2. Run `npm run dev`
-3. The admin interface will be available at `http://localhost:3002`
-
-## Deployment
-
-The application can be deployed to a production server using the deployment scripts in the `deploy/` directory.
-
-### Deployment Structure
-
-- `deploy.sh` - Main deployment script (in the project root)
-- `deploy/` - Directory containing all deployment-related files
-  - `deploy_schema.ts` - Simplified Keystone schema for production
-  - `env_setup.sh` - Utility functions for environment setup
-  - `deploy.sh` - Server-side deployment script
-  - `README.md` - Documentation for the deployment process
-  - `auto_deploy.sh` - Script for automatic deployment from GitHub
-  - `webhook.js` - Webhook listener for GitHub events
-  - `webhook.service` - Systemd service for the webhook
-
-### Manual Deployment
-
-To manually deploy the application:
-
-1. Make sure your SSH key for the server is properly set up at `~/.ssh/goodpapers_digitalocean`
-2. Run the deployment script from the project root:
-
-```bash
-./deploy.sh
-```
-
-### Continuous Deployment
-
-The repository is set up with continuous deployment through GitHub Actions. Whenever you push to the `main` branch, the changes are automatically deployed to the production server.
-
-#### GitHub Configuration
-
-For the GitHub Actions workflow to function, the following secrets need to be set in the repository:
-
-1. `SSH_PRIVATE_KEY` - The private SSH key for accessing the server 
-2. `DROPLET_IP` - The IP address of the Digital Ocean droplet (161.35.180.213)
-3. `DIGITALOCEAN_ACCESS_TOKEN` - The Digital Ocean API token for doctl
-
-See [deploy/GITHUB_SETUP.md](deploy/GITHUB_SETUP.md) for detailed instructions on setting up these secrets.
-
-For more detailed information about the deployment process, see [deploy/README.md](deploy/README.md) and [PRODUCTION.md](PRODUCTION.md).

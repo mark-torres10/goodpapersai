@@ -6,6 +6,9 @@ const path = require('path');
 const fs = require('fs');
 const { syncPaperToKeystone, syncUpdateToKeystone } = require('./keystone-sync');
 const dotenv = require('dotenv');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const { passport, generateToken, isAuthenticated, createUser } = require('./auth');
 dotenv.config();
 
 const app = express();
@@ -15,9 +18,26 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: ['http://localhost:3000', 'https://goodpapersai.com', 'http://localhost:3002'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(bodyParser.json());
+app.use(cookieParser());
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'goodpapers-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Debug middleware for tracking requests
 app.use((req, res, next) => {
@@ -60,6 +80,28 @@ const db = new sqlite3.Database(dbPath, (err) => {
           updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
       `);
+      
+      // Create users table
+      db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          email TEXT NOT NULL UNIQUE,
+          last_login_timestamp TEXT,
+          created_timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      
+      // Create default user if it doesn't exist
+      db.get(`SELECT * FROM users WHERE email = 'admin@goodpapersai.com'`, (err, row) => {
+        if (!row) {
+          db.run(`
+            INSERT INTO users (name, email)
+            VALUES ('Admin', 'admin@goodpapersai.com')
+          `);
+          console.log('Default user created');
+        }
+      });
       
       // Create updates table
       db.run(`
@@ -537,6 +579,102 @@ app.patch('/api/papers/:id/reading-status', async (req, res) => {
     );
   });
 });
+
+// Authentication routes
+// Google OAuth login
+app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Google OAuth callback
+app.get('/api/auth/google/callback', 
+  passport.authenticate('google', { session: false, failureRedirect: '/login?error=google-auth-failed' }),
+  (req, res) => {
+    if (req.user.needsRegistration) {
+      // Redirect to registration page with email in query params
+      return res.redirect(`/create-account?email=${encodeURIComponent(req.user.email)}&name=${encodeURIComponent(req.user.name)}`);
+    }
+    
+    // Generate JWT token
+    const token = generateToken(req.user);
+    
+    // Set token as cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    
+    // Redirect to home page
+    res.redirect('/home');
+  }
+);
+
+// Create account endpoint
+app.post('/api/auth/create-account', async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+    
+    // Check if user already exists
+    const existingUser = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+    
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+    
+    // Create new user
+    const newUser = await createUser(name, email);
+    
+    // Generate JWT token
+    const token = generateToken(newUser);
+    
+    // Set token as cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    
+    res.status(201).json({
+      message: 'Account created successfully',
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email
+      }
+    });
+  } catch (err) {
+    console.error('Error creating account:', err);
+    res.status(500).json({ error: 'Failed to create account' });
+  }
+});
+
+// Logout endpoint
+app.get('/api/auth/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logged out successfully' });
+});
+
+// Verify authentication status
+app.get('/api/auth/verify', isAuthenticated, (req, res) => {
+  res.json({
+    authenticated: true,
+    user: {
+      id: req.user.id,
+      email: req.user.email
+    }
+  });
+});
+
+// Protected APIs should use the isAuthenticated middleware
+// Example: app.get('/api/some-protected-route', isAuthenticated, (req, res) => {...});
 
 // Add health check endpoint
 app.get('/api/health', (req, res) => {

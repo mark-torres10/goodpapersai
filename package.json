@@ -1,33 +1,49 @@
 {
+  "name": "goodpapers",
+  "version": "1.0.0",
+  "description": "GoodPapers - Research Paper Management App",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "jest",
+    "test:server": "jest --projects=server",
+    "test:component": "cd goodpapers && npm run test:component",
+    "setup:oauth": "node scripts/setup-oauth.js"
+  },
   "dependencies": {
     "axios": "^1.8.1",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-session": "^1.17.3",
     "fast-xml-parser": "^5.0.8",
+    "jsonwebtoken": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-react": "^7.26.3",
-    "@babel/preset-typescript": "^7.26.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "babel-jest": "^29.7.0",
-    "body-parser": "^1.20.3",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "node-fetch": "^2.7.0",
-    "ts-jest": "^29.2.6",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "jest": "^29.7.0"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "test:jest": "jest",
-    "test:component": "jest src/components/paper/AddFromArxivModal.test.js",
-    "test:server": "jest --config=tests/server/jest.config.js tests/server",
-    "eject": "react-scripts eject"
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "jest": {
+    "projects": [
+      {
+        "displayName": "server",
+        "testMatch": ["<rootDir>/tests/server/**/*.test.js"],
+        "testEnvironment": "node"
+      }
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mark-torres10/goodpapersai.git"
   }
 }

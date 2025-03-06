@@ -57,7 +57,9 @@ var lists = {
       url: (0, import_fields.text)(),
       abstract: (0, import_fields.text)({ ui: { displayMode: "textarea" } }),
       isCurrentlyReading: (0, import_fields.checkbox)({ defaultValue: false }),
-      updates: (0, import_fields.relationship)({ ref: "Update.paper", many: true })
+      readingStatus: (0, import_fields.text)(),
+      updates: (0, import_fields.relationship)({ ref: "Update.paper", many: true }),
+      reader: (0, import_fields.relationship)({ ref: "User.papers", many: true })
     },
     ui: {
       labelField: "title",
@@ -70,9 +72,11 @@ var lists = {
     access: import_access.allowAll,
     fields: {
       paper: (0, import_fields.relationship)({ ref: "Paper.updates" }),
+      user: (0, import_fields.relationship)({ ref: "User.updates" }),
       paperTitle: (0, import_fields.text)({ validation: { isRequired: true } }),
       message: (0, import_fields.text)({ validation: { isRequired: true } }),
-      timestamp: (0, import_fields.timestamp)({ defaultValue: { kind: "now" } })
+      timestamp: (0, import_fields.timestamp)({ defaultValue: { kind: "now" } }),
+      readingStatus: (0, import_fields.text)()
     },
     ui: {
       labelField: "message",
