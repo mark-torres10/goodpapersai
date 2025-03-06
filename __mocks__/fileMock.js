@@ -1,2 +1,2 @@
-// File mock
-module.exports = "test-file-stub";
+// Mock file for asset imports in Jest
+module.exports = 'test-file-stub';
