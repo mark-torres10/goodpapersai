@@ -33,6 +33,7 @@ class ArxivPaper(Paper):
 
 class Update(BaseModel):
     """Pydantic model for an update."""
+    update_id: int
     paper_id: int
     user_id: int
     message: str

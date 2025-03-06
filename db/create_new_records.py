@@ -14,7 +14,8 @@ def user_adds_new_arxiv_paper(
     arxiv_url: str,
     reading_status: Literal[
         "added to library", "want to read", "reading", "finished reading"
-    ] = "added to library"
+    ] = "added to library",
+    reading_progress: float = 0.0 # decimal, 0 to 1
 ) -> dict[str, ArxivPaper | Update]:
     """User adds a new paper to their library.
     
@@ -42,10 +43,12 @@ def user_adds_new_arxiv_paper(
         updated_date=arxiv_paper["updated_date"],
     )
     update = Update(
+        update_id=default_stub_id,
         paper_id=default_stub_id,
         user_id=user_id,
         message="User added this paper to their library.",
         reading_status=reading_status,
+        reading_progress=reading_progress,
         created_at=generate_current_datetime_str(),
     )
     return {
