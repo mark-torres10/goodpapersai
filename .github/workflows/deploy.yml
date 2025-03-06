@@ -37,4 +37,10 @@ jobs:
         
     - name: Execute remote deploy script
       run: |
-        ssh root@${{ secrets.DROPLET_IP }} "cd /var/www/goodpapers/repo && bash deploy.sh" 
+        ssh root@${{ secrets.DROPLET_IP }} "cd /var/www/goodpapers/repo && bash deploy.sh"
+      
+    # Always executed to make sure SSH agent is stopped properly
+    - name: Cleanup SSH agent
+      if: always()
+      run: |
+        eval $(ssh-agent -k) || true 

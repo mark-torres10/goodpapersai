@@ -36,11 +36,11 @@ mkdir -p "${LOGS_DIR}"
 
 # Step 1: Install dependencies if needed
 log "Installing server dependencies..."
-cd "${REPO_DIR}" && npm install --legacy-peer-deps
+cd "${REPO_DIR}" && npm install --legacy-peer-deps --no-fund --no-audit
 
 # Step 2: Install admin site dependencies
 log "Installing admin site dependencies..."
-cd "${REPO_DIR}/admin" && npm install --legacy-peer-deps
+cd "${REPO_DIR}/admin" && npm install --legacy-peer-deps --no-fund --no-audit
 
 # Step 3: Build admin site
 log "Building admin site..."
@@ -48,16 +48,14 @@ cd "${REPO_DIR}/admin" && npm run build
 
 # Step 4: Install frontend dependencies
 log "Installing frontend dependencies..."
-cd "${REPO_DIR}/goodpapers" && npm install --legacy-peer-deps
+cd "${REPO_DIR}/goodpapers" && npm install --legacy-peer-deps --no-fund --no-audit
 
 # Step 5: Build frontend
 log "Building frontend..."
 cd "${REPO_DIR}/goodpapers" && npm run build
 
-# Step 6: Restart services
+# Step 6: Restart services using PM2 ecosystem config
 log "Restarting services..."
-pm2 restart goodpapers-server
-pm2 restart goodpapers-admin
-pm2 restart goodpapers-frontend-serve
+cd "${REPO_DIR}" && pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
 
 log "Deployment completed!" 
