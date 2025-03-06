@@ -30,7 +30,9 @@ interface AuthProviderProps {
 }
 
 // API URL
-const API_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://goodpapersai.com' 
+  : 'http://localhost:3001';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
