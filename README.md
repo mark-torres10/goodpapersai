@@ -59,5 +59,8 @@ For the GitHub Actions workflow to function, the following secrets need to be se
 
 1. `SSH_PRIVATE_KEY` - The private SSH key for accessing the server 
 2. `DROPLET_IP` - The IP address of the Digital Ocean droplet (161.35.180.213)
+3. `DIGITALOCEAN_ACCESS_TOKEN` - The Digital Ocean API token for doctl
+
+See [deploy/GITHUB_SETUP.md](deploy/GITHUB_SETUP.md) for detailed instructions on setting up these secrets.
 
 For more detailed information about the deployment process, see [deploy/README.md](deploy/README.md) and [PRODUCTION.md](PRODUCTION.md).
