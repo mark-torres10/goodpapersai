@@ -36,7 +36,14 @@ mkdir -p "${LOGS_DIR}"
 
 # Step 1: Install dependencies if needed
 log "Installing server dependencies..."
-cd "${REPO_DIR}" && npm install --legacy-peer-deps --no-fund --no-audit
+cd "${REPO_DIR}" 
+# Remove node_modules to ensure clean installation
+rm -rf node_modules
+npm install --no-fund --no-audit
+
+# Explicitly install required packages for the server
+log "Ensuring critical server dependencies are installed..."
+npm install express cors axios fast-xml-parser sqlite3 body-parser dotenv --no-fund --no-audit
 
 # Step 2: Install admin site dependencies
 log "Installing admin site dependencies..."

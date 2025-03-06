@@ -1,6 +1,7 @@
 import { Paper, Update } from '../types';
 
-const API_URL = 'http://localhost:3001/api';
+// Use relative URL in production, localhost in development
+const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
 
 // Helper function to format paper data from API
 const formatPaper = (paper: any): Paper => ({
