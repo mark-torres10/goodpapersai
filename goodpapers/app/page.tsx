@@ -7,16 +7,14 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { PaperList } from "@/components/papers/PaperList";
 import { SearchBar } from "@/components/papers/SearchBar";
-import { StatusFilter } from "@/components/papers/StatusFilter";
+import { StatusFilter, type ReadingStatus } from "@/components/papers/StatusFilter";
 import { AddPaperModal } from "@/components/papers/AddPaperModal";
 
 export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "to_read" | "reading" | "completed" | "all"
-  >("all");
+  const [statusFilter, setStatusFilter] = useState<ReadingStatus>("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const currentUser = useQuery(api.users.getCurrentUser);

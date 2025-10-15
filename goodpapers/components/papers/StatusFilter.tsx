@@ -1,6 +1,6 @@
 "use client";
 
-type ReadingStatus = "to_read" | "reading" | "completed" | "all";
+export type ReadingStatus = "to_read" | "reading" | "completed" | "all";
 
 interface StatusFilterProps {
   selected: ReadingStatus;

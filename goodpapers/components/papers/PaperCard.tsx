@@ -14,8 +14,10 @@ export function PaperCard({ paper }: PaperCardProps) {
     completed: "bg-green-100 text-green-800",
   };
 
+  const defaultStatusColor = "bg-gray-100 text-gray-800";
+
   const formatStatus = (status: string) => {
-    return status.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
+    return status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   return (
@@ -38,7 +40,7 @@ export function PaperCard({ paper }: PaperCardProps) {
         <div className="flex items-center gap-2">
           <span
             className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-              statusColors[paper.readingStatus]
+              statusColors[paper.readingStatus] ?? defaultStatusColor
             }`}
           >
             {formatStatus(paper.readingStatus)}

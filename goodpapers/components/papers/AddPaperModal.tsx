@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -17,6 +17,23 @@ export function AddPaperModal({ isOpen, onClose, userId }: AddPaperModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   const addPaper = useAction(api.arxiv.actions.addPaperFromArxiv);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen && !isLoading) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, isLoading, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
