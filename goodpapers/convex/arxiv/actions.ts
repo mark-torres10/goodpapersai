@@ -22,7 +22,7 @@ export const addPaperFromArxiv = action({
     input: v.string(), // URL or ArXiv ID
     userId: v.id("users"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: { input: string; userId: string }): Promise<any> => {
     // Step 1: Parse ArXiv ID
     const arxivId = parseArxivId(args.input);
     if (!arxivId) {
@@ -36,8 +36,9 @@ export const addPaperFromArxiv = action({
     console.log(`Fetching metadata for ${arxivId}...`);
 
     // Step 2: Check for duplicate (if PER-9 schema exists)
+    let existing: any = null;
     try {
-      const existing = await ctx.runQuery(api.papers.getPaperByArxivId, {
+      existing = await ctx.runQuery(api.papers.getPaperByArxivId, {
         arxivId,
         userId: args.userId,
       });
