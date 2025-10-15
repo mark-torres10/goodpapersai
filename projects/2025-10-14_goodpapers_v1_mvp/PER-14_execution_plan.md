@@ -160,14 +160,14 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdnjs.cloudflare.com https://*.convex.cloud",
+              "script-src 'self'",
               "worker-src 'self' blob:",
               "child-src 'self' blob:",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
               "connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud",
-              "frame-src 'self'",
+              "frame-src 'none'",
             ].join('; '),
           },
         ],
@@ -195,6 +195,25 @@ npm run dev
 **Step 1.3**: Document CSP configuration (5 min)
 
 Add note to README or docs explaining CSP requirements for PDF.js.
+
+#### Hosting pdf.js worker locally (no 'unsafe-eval' needed)
+
+1. Copy worker to same origin:
+   ```bash
+   cp node_modules/react-pdf/node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/static/pdfjs/pdf.worker.min.mjs
+   ```
+2. Configure workerSrc:
+   ```ts
+   // components/papers/PDFViewer.tsx
+   pdfjs.GlobalWorkerOptions.workerSrc = "/static/pdfjs/pdf.worker.min.mjs";
+   ```
+3. Keep CSP worker-src as `'self' blob:`. No CDN needed.
+
+#### Optional hardening with SRI/nonce
+
+- Prefer hosting all scripts on `'self'` to avoid SRI/nonce overhead.
+- If you must include external scripts, compute SRI with `subresource-integrity` tools and add `integrity="..." crossorigin="anonymous"`.
+- For inline scripts, generate a per-request nonce and add it to both the CSP (`script-src 'self' 'nonce-<value>'`) and the script tag. Avoid inline where possible.
 
 ---
 

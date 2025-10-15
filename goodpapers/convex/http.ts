@@ -48,9 +48,9 @@ http.route({
   path: "/pdf/:storageId",
   method: "GET",
   handler: httpAction(async (ctx: any, request: any) => {
-    // Extract storage ID from URL
-    const urlParts = request.url.split("/pdf/");
-    const storageId = urlParts[1];
+    // Extract and safely decode storage ID from URL
+    const url = new URL(request.url);
+    const storageId = decodeURIComponent(url.pathname.split("/pdf/")[1] || "");
 
     if (!storageId) {
       return new Response("Storage ID required", { 

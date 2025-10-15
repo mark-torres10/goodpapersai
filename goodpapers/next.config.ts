@@ -18,12 +18,12 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // Next.js and PDF.js requirements - see SECURITY.md for trade-off analysis
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com https://*.convex.site https://*.convex.cloud",
+              // Production CSP: avoid 'unsafe-inline'/'unsafe-eval'; host worker and scripts on self
+              "script-src 'self' https://*.convex.site https://*.convex.cloud",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' https://lh3.googleusercontent.com data: blob:",
               "connect-src 'self' https://*.convex.site wss://*.convex.site https://*.convex.cloud wss://*.convex.cloud",
-              // PDF.js worker requires blob: URLs
+              // PDF.js worker requires blob: URLs and is self-hosted under /static/pdfjs
               "worker-src 'self' blob:",
               "child-src 'self' blob:",
               "frame-src 'none'",

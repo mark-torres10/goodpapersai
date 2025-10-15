@@ -26,7 +26,9 @@ export function getPdfUrl(storageId: string): string {
 
   // Remove trailing slash if present
   const baseUrl = convexSiteUrl.replace(/\/$/, '');
-  
-  return `${baseUrl}/pdf/${storageId}`;
+
+  // Encode the storageId as a path segment to prevent path injection
+  const encodedId = encodeURIComponent(storageId);
+  return `${baseUrl}/pdf/${encodedId}`;
 }
 
