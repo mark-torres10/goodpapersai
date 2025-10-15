@@ -9,24 +9,29 @@
  * @module components/auth/SignInForm
  */
 
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
 
 /**
  * Sign In Form
  *
  * Displays a Google OAuth sign-in button with loading state.
- * Note: Auth functionality temporarily disabled for testing.
+ * Initiates the OAuth flow when clicked.
  *
  * @returns Sign-in form component
  */
 export function SignInForm() {
+  const { signIn } = useAuthActions();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // TODO: Implement Google OAuth sign-in
-    console.log("Google sign-in would be implemented here");
-    setIsLoading(false);
+    try {
+      await signIn("google");
+    } catch (error) {
+      console.error("Sign in failed:", error);
+      setIsLoading(false);
+    }
   };
 
   return (
