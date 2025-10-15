@@ -3,7 +3,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Get recent papers (last 10 modified)
-export const listRecentPapers = query({
+const listRecentPapers = query({
   args: {
     userId: v.id("users"),
     limit: v.optional(v.number()),
@@ -21,8 +21,20 @@ export const listRecentPapers = query({
   },
 });
 
+// Export all functions for API access
+export {
+  listRecentPapers,
+  listPapers,
+  getPaper,
+  getPaperByArxivId,
+  searchPapers,
+  createPaper,
+  updatePaper,
+  deletePaper,
+};
+
 // Get all papers for a user (with optional filters)
-export const listPapers = query({
+const listPapers = query({
   args: {
     userId: v.id("users"),
     status: v.optional(v.union(
@@ -56,7 +68,7 @@ export const listPapers = query({
 });
 
 // Get single paper by ID
-export const getPaper = query({
+const getPaper = query({
   args: {
     paperId: v.id("papers"),
   },
@@ -67,7 +79,7 @@ export const getPaper = query({
 });
 
 // Get paper by ArXiv ID (for checking duplicates)
-export const getPaperByArxivId = query({
+const getPaperByArxivId = query({
   args: {
     arxivId: v.string(),
     userId: v.id("users"),
@@ -84,7 +96,7 @@ export const getPaperByArxivId = query({
 });
 
 // Search papers (title, authors, abstract)
-export const searchPapers = query({
+const searchPapers = query({
   args: {
     userId: v.id("users"),
     query: v.string(),
@@ -103,7 +115,7 @@ export const searchPapers = query({
 });
 
 // Create a new paper
-export const createPaper = mutation({
+const createPaper = mutation({
   args: {
     userId: v.id("users"),
     title: v.string(),
@@ -149,7 +161,7 @@ export const createPaper = mutation({
 });
 
 // Update paper metadata
-export const updatePaper = mutation({
+const updatePaper = mutation({
   args: {
     paperId: v.id("papers"),
     readingStatus: v.optional(v.union(
@@ -172,7 +184,7 @@ export const updatePaper = mutation({
 });
 
 // Delete paper (and associated notes)
-export const deletePaper = mutation({
+const deletePaper = mutation({
   args: {
     paperId: v.id("papers"),
   },

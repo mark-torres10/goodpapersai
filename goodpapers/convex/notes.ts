@@ -3,7 +3,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Get notes for a paper
-export const getNotesByPaper = query({
+const getNotesByPaper = query({
   args: {
     paperId: v.id("papers"),
   },
@@ -20,7 +20,7 @@ export const getNotesByPaper = query({
 });
 
 // Save or update note for a paper
-export const saveNote = mutation({
+const saveNote = mutation({
   args: {
     paperId: v.id("papers"),
     userId: v.id("users"),
@@ -57,7 +57,7 @@ export const saveNote = mutation({
 });
 
 // Delete note
-export const deleteNote = mutation({
+const deleteNote = mutation({
   args: {
     noteId: v.id("notes"),
   },
@@ -66,3 +66,10 @@ export const deleteNote = mutation({
     return { success: true };
   },
 });
+
+// Export all functions for API access
+export {
+  getNotesByPaper,
+  saveNote,
+  deleteNote,
+};
