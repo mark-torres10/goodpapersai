@@ -8,6 +8,29 @@
  */
 
 import { XMLParser } from "fast-xml-parser";
+import { isValidArxivId, getArxivUrls } from "./parser";
+
+// XML structure types for better type safety
+interface ArxivAuthor {
+  name: string;
+}
+
+interface ArxivCategory {
+  "@_term": string;
+}
+
+interface ArxivEntry {
+  title: string;
+  author: ArxivAuthor | ArxivAuthor[];
+  category?: ArxivCategory | ArxivCategory[];
+  summary?: string;
+  published?: string;
+  updated?: string;
+}
+
+interface ArxivFeed {
+  feed?: { entry?: ArxivEntry };
+}
 
 export interface ArxivPaperMetadata {
   title: string;
@@ -28,15 +51,20 @@ export async function fetchArxivMetadata(
   arxivId: string
 ): Promise<ArxivPaperMetadata> {
   // Validate ID
-  if (!/^\d{4}\.\d{4,5}$/.test(arxivId)) {
+  if (!isValidArxivId(arxivId)) {
     throw new Error(`Invalid ArXiv ID format: ${arxivId}`);
   }
 
   // Build API URL
-  const apiUrl = `http://export.arxiv.org/api/query?id_list=${arxivId}`;
+  const apiUrl = `https://export.arxiv.org/api/query?id_list=${arxivId}`;
 
   // Fetch from ArXiv with retry logic
-  const response = await fetchWithRetry(apiUrl);
+  const response = await fetchWithRetry(apiUrl, 3, 3000, {
+    headers: {
+      "User-Agent": "GoodpapersAI/1.0 (+https://github.com/mark-torres10/goodpapersai; contact@example.com)",
+      "Accept": "application/atom+xml",
+    },
+  });
 
   const xmlText = await response.text();
 
@@ -45,10 +73,10 @@ export async function fetchArxivMetadata(
     ignoreAttributes: false,
     attributeNamePrefix: "@_",
   });
-  const parsed = parser.parse(xmlText);
+  const parsed = parser.parse(xmlText) as ArxivFeed;
 
   // Extract entry (ArXiv returns Atom feed format)
-  const entry = parsed.feed?.entry;
+  const entry = parsed.feed?.entry as ArxivEntry | undefined;
   if (!entry) {
     throw new Error(`Paper not found: ${arxivId}`);
   }
@@ -62,7 +90,7 @@ export async function fetchArxivMetadata(
   let authors: string[] = [];
   if (entry.author) {
     if (Array.isArray(entry.author)) {
-      authors = entry.author.map((a: any) => a.name);
+      authors = entry.author.map((a) => a.name);
     } else {
       authors = [entry.author.name];
     }
@@ -72,7 +100,7 @@ export async function fetchArxivMetadata(
   let categories: string[] = [];
   if (entry.category) {
     if (Array.isArray(entry.category)) {
-      categories = entry.category.map((c: any) => c["@_term"]);
+      categories = entry.category.map((c) => c["@_term"]);
     } else {
       categories = [entry.category["@_term"]];
     }
@@ -85,12 +113,14 @@ export async function fetchArxivMetadata(
   const abstract = entry.summary?.replace(/\s+/g, " ").trim() || "";
 
   // Parse dates
-  const publishedDate = entry.published || new Date().toISOString();
-  const updatedDate = entry.updated || publishedDate;
+  if (!entry.published) {
+    throw new Error(`Missing published date for paper: ${arxivId}`);
+  }
+  const publishedDate = entry.published;
+  const updatedDate = entry.updated || entry.published;
 
   // Get URLs
-  const arxivUrl = `https://arxiv.org/abs/${arxivId}`;
-  const pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
+  const { abs: arxivUrl, pdf: pdfUrl } = getArxivUrls(arxivId);
 
   return {
     title,
@@ -111,11 +141,17 @@ export async function fetchArxivMetadata(
 async function fetchWithRetry(
   url: string,
   maxRetries = 3,
-  baseDelayMs = 1000
+  baseDelayMs = 3000,
+  init: RequestInit = {},
+  timeoutMs = 15000
 ): Promise<Response> {
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const response = await fetch(url);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const response = await fetch(url, { ...init, signal: controller.signal });
+      clearTimeout(timer);
+
       if (response.ok) {
         return response;
       }
@@ -123,9 +159,18 @@ async function fetchWithRetry(
       // If 429 (rate limit), check Retry-After header and wait
       if (response.status === 429 && i < maxRetries - 1) {
         const retryAfter = response.headers.get("Retry-After");
-        const delayMs = retryAfter
-          ? parseInt(retryAfter, 10) * 1000
-          : baseDelayMs * Math.pow(2, i);
+        let delayMs = baseDelayMs * Math.pow(2, i);
+        if (retryAfter) {
+          const secs = Number(retryAfter);
+          if (Number.isFinite(secs)) {
+            delayMs = secs * 1000;
+          } else {
+            const dateMs = Date.parse(retryAfter);
+            if (!Number.isNaN(dateMs)) {
+              delayMs = Math.max(0, dateMs - Date.now());
+            }
+          }
+        }
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         continue;
       }
