@@ -94,14 +94,14 @@
 - 🚀 Start PER-9 (Backend Schema) and PER-10 (ArXiv Integration) in parallel
 
 **Files Created**:
-- `/Users/mark/Documents/work/goodpapers/goodpapers/` - Full Next.js project
-- `app/ConvexClientProvider.tsx` - Convex React provider
-- `convex/auth.ts` - Auth configuration with Google OAuth
-- `convex/http.ts` - HTTP routes for auth
-- `README.md` - Complete setup instructions
-- `SETUP_STATUS.md` - Detailed status
-- `convex/README.md` - Convex setup guide
-- Reflection: `2025-10-14_PER-8_reflection.md`
+- `goodpapers/` - Full Next.js project
+- `goodpapers/app/ConvexClientProvider.tsx` - Convex React provider
+- `goodpapers/convex/auth.ts` - Auth configuration with Google OAuth
+- `goodpapers/convex/http.ts` - HTTP routes for auth
+- `goodpapers/README.md` - Complete setup instructions
+- `goodpapers/SETUP_STATUS.md` - Detailed status
+- `goodpapers/convex/README.md` - Convex setup guide
+- `projects/2025-10-14_goodpapers_v1_mvp/2025-10-14_PER-8_reflection.md` - Reflection
 
 **Infrastructure Ready**:
 - ✅ Next.js 15 + TypeScript + Tailwind v4

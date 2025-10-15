@@ -10,7 +10,7 @@ A Goodreads-style application for tracking academic papers. Add ArXiv papers wit
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15 (App Router), React, Tailwind CSS v3
+- **Frontend**: Next.js 15 (App Router), React, Tailwind CSS v4 (v4.1.14)
 - **Backend**: Convex (database, auth, file storage, functions)
 - **Auth**: Convex Auth with Google OAuth
 - **PDF**: react-pdf library

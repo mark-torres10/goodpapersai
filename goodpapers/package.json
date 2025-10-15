@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'convex/_generated/**'"
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.90",
