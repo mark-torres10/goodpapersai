@@ -10,7 +10,7 @@
 
 ## Objective
 
-Comprehensive testing and validation of PER-13 (Paper Detail Page with PDF Viewer & Notes) to ensure PDF viewing, notes editing with auto-save, metadata display, and reading status/tags management all work correctly and provide an excellent research workflow.
+Comprehensive testing and validation of PER-13 (Paper Detail Page with PDF Viewer & Notes) to ensure PDF viewing, note-taking, metadata display, reading status updates, and tags editing all work correctly and meet specification requirements.
 
 ---
 
@@ -18,12 +18,36 @@ Comprehensive testing and validation of PER-13 (Paper Detail Page with PDF Viewe
 
 ### 1. PDF Viewer Functionality (10 tests)
 ### 2. Notes Editor & Auto-Save (8 tests)
-### 3. Paper Metadata Display (6 tests)
-### 4. Reading Status & Tags (7 tests)
-### 5. Layout & Integration (6 tests)
-### 6. Performance & Edge Cases (5 tests)
+### 3. Paper Metadata Display (7 tests)
+### 4. Reading Status & Tags (6 tests)
+### 5. Layout & Integration (9 tests)
 
-**Total: 42 automated + manual tests**
+**Total: 40 automated + manual tests**
+
+---
+
+## Context from PER-12
+
+### Current State (Post-PER-12)
+- ✅ Paper list displays papers in grid
+- ✅ Clicking paper card navigates to `/paper/{paperId}`
+- ⚠️ **Currently shows 404** (expected - PER-13 not implemented yet)
+- ✅ Mock authentication working with test user
+- ✅ TinyTroupe paper in database (ID: `j97dx96r97y92wk24aw4z3362n7shyrz`)
+- ✅ PDF stored in Convex Storage (pdfStorageId available)
+
+### What PER-13 Will Enable
+- ✅ **404 → Paper Detail Page**: Clicking paper will show PDF and notes instead of 404
+- ✅ **PDF Viewing**: See the actual TinyTroupe PDF rendered in browser
+- ✅ **Note Taking**: Add notes to papers with auto-save
+- ✅ **Status Updates**: Change reading status (To Read → Reading → Completed)
+- ✅ **Tags Management**: Add/remove tags to organize papers
+
+### Available Test Data
+- **Paper**: TinyTroupe (ID: `j97dx96r97y92wk24aw4z3362n7shyrz`)
+- **User**: Test User (ID: `jd7b9a0m074jxjsxattq0cn74x7shyrz`)
+- **PDF**: Stored in Convex Storage
+- **ArXiv URL**: https://arxiv.org/abs/2507.09788
 
 ---
 
@@ -31,179 +55,180 @@ Comprehensive testing and validation of PER-13 (Paper Detail Page with PDF Viewe
 
 ### 1. PDF Viewer Functionality (10 tests)
 
-#### Test 1.1: PDF Loads and Displays
-**Type**: Visual Test (Browser MCP)  
+#### Test 1.1: PDF Load from Storage
+**Type**: Integration Test (Browser MCP)  
 **Steps**:
-1. Navigate to paper detail page
-2. Verify PDF loads and first page displays
+1. Navigate to `/paper/j97dx96r97y92wk24aw4z3362n7shyrz`
+2. Wait for PDF to load
+3. Verify PDF renders
 
 **Success Criteria**:
-- PDF renders on left side of page
-- First page visible
-- PDF is readable and clear
-- No rendering errors
+- PDF loads from Convex Storage via HTTP action
+- First page of TinyTroupe paper displays
+- Loading spinner shows during load
+- PDF renders within 5 seconds (spec requirement)
+- No CORS errors in console
 
 #### Test 1.2: Page Navigation - Next/Previous
 **Type**: Interaction Test (Browser MCP)  
 **Steps**:
 1. Click "Next" button
-2. Verify page 2 displays
+2. Verify page number increases
 3. Click "Previous" button
-4. Verify page 1 displays
+4. Verify page returns to previous
 
 **Success Criteria**:
-- Next button advances to next page
-- Previous button goes to previous page
 - Page number updates correctly
-- Buttons disabled appropriately (first/last page)
+- PDF re-renders with new page
+- Previous disabled on page 1
+- Next disabled on last page
+- Page counter shows "Page X of Y"
 
-#### Test 1.3: Page Number Display
-**Type**: Visual Test  
-**Steps**:
-1. Check page counter display
-
-**Success Criteria**:
-- Shows "Page X of Y"
-- Updates when navigating pages
-- Accurate total page count
-
-#### Test 1.4: Zoom In
-**Type**: Interaction Test (Browser MCP)  
-**Steps**:
-1. Click zoom in button (+)
-2. Verify PDF enlarges
-
-**Success Criteria**:
-- PDF scales up
-- Text becomes larger and more readable
-- No pixelation or quality loss
-- Can zoom to 200%
-
-#### Test 1.5: Zoom Out
+#### Test 1.3: Page Navigation - Direct Input
 **Type**: Interaction Test  
 **Steps**:
-1. Click zoom out button (−)
-2. Verify PDF shrinks
+1. Enter page number in input field
+2. Press Enter or click Go
+3. Verify PDF jumps to that page
 
 **Success Criteria**:
-- PDF scales down
-- Can zoom to 50%
-- Entire page visible at small zoom
-- Zoom level displays correctly
+- Can type page number
+- PDF navigates to correct page
+- Invalid page numbers handled gracefully
+- Page counter updates
 
-#### Test 1.6: Zoom Level Display
-**Type**: Visual Test  
+#### Test 1.4: Zoom Controls - Zoom In
+**Type**: Interaction Test (Browser MCP)  
 **Steps**:
-1. Check zoom percentage display
+1. Click "+" (zoom in) button multiple times
+2. Observe PDF scaling
 
 **Success Criteria**:
-- Shows current zoom (e.g., "100%")
-- Updates when zooming
-- Accurate percentage
+- PDF scales up incrementally
+- Zoom percentage displays (e.g., "110%", "120%")
+- Maximum zoom limit enforced (e.g., 200%)
+- Button disables at max zoom
+- PDF quality maintained at higher zoom
 
-#### Test 1.7: PDF Loading State
+#### Test 1.5: Zoom Controls - Zoom Out
+**Type**: Interaction Test  
+**Steps**:
+1. Click "−" (zoom out) button multiple times
+2. Observe PDF scaling
+
+**Success Criteria**:
+- PDF scales down incrementally
+- Minimum zoom limit enforced (e.g., 50%)
+- Button disables at min zoom
+- PDF remains readable
+
+#### Test 1.6: Zoom Controls - Fit to Width
+**Type**: Interaction Test  
+**Steps**:
+1. Click "Fit to Width" button
+2. Verify PDF scales to container width
+
+**Success Criteria**:
+- PDF scales to fit container width
+- No horizontal scroll
+- Readable text size
+- Resets zoom percentage
+
+#### Test 1.7: PDF Viewer Loading State
 **Type**: UX Test  
 **Steps**:
 1. Navigate to paper detail page
-2. Observe loading state before PDF renders
+2. Observe loading state during PDF load
 
 **Success Criteria**:
 - Loading spinner displays
-- Spinner centers in PDF viewer area
-- Smooth transition to PDF when loaded
-- No flash of unstyled content
+- Professional loading animation
+- No blank screen
+- Smooth transition to rendered PDF
 
-#### Test 1.8: PDF with Many Pages
-**Type**: Performance Test  
-**Steps**:
-1. Load paper with 20+ pages
-2. Navigate through pages
-
-**Success Criteria**:
-- PDF loads successfully
-- Page navigation smooth
-- No memory issues
-- Performance acceptable
-
-#### Test 1.9: PDF Error Handling
+#### Test 1.8: PDF Viewer Error Handling
 **Type**: Error Test  
 **Steps**:
-1. Navigate to paper with missing/corrupted PDF
-2. Verify error state
+1. Navigate to paper with invalid/missing PDF
+2. Observe error handling
 
 **Success Criteria**:
 - Error message displays
-- Message is helpful: "Failed to load PDF"
-- Offers retry or alternative (link to ArXiv)
-- Doesn't crash application
+- Message is user-friendly
+- Suggests action (e.g., "Try re-downloading")
+- Doesn't crash app
 
-#### Test 1.10: PDF CORS and Worker
-**Type**: Integration Test  
+#### Test 1.9: PDF Scrolling & Navigation
+**Type**: UX Test  
 **Steps**:
-1. Verify PDF.js worker loads correctly
-2. Check browser console for CORS errors
+1. Load multi-page PDF
+2. Scroll through pages
+3. Use page controls
 
 **Success Criteria**:
-- PDF.js worker loads from CDN
-- No CORS errors in console
-- PDF text layer renders (selectable text)
-- PDF annotations render (links, highlights)
+- Smooth scrolling
+- No lag or jank
+- Page controls always visible
+- Can navigate long papers (>10 pages)
+
+#### Test 1.10: PDF Viewer Responsive Behavior
+**Type**: Responsive Test (Browser MCP)  
+**Steps**:
+1. Resize browser window
+2. Verify PDF viewer adapts
+
+**Success Criteria**:
+- PDF scales appropriately
+- Controls remain accessible
+- No horizontal overflow
+- Readable on smaller screens (desktop-first focus)
 
 ---
 
 ### 2. Notes Editor & Auto-Save (8 tests)
 
-#### Test 2.1: Notes Editor Renders
-**Type**: Visual Test (Browser MCP)  
+#### Test 2.1: Notes Editor Rendering
+**Type**: Visual Test  
 **Steps**:
 1. Navigate to paper detail page
 2. Locate notes editor
 
 **Success Criteria**:
-- Notes editor visible on right side
-- Text area is large and comfortable
+- Text area visible and accessible
 - Placeholder text: "Take notes on this paper..."
-- Professional styling
+- Proper styling and sizing
+- Cursor appears on focus
 
-#### Test 2.2: Load Existing Notes
-**Type**: Data Test  
-**Steps**:
-1. Add note to paper in Convex dashboard
-2. Navigate to paper detail page
-3. Verify note loads
-
-**Success Criteria**:
-- Existing note content displays in editor
-- Note loads without delay
-- Full content visible (not truncated)
-
-#### Test 2.3: Create New Note
+#### Test 2.2: Notes Auto-Save - Create Note
 **Type**: Integration Test (Browser MCP)  
 **Steps**:
-1. Navigate to paper with no notes
-2. Type in notes editor
-3. Wait for auto-save
+1. Navigate to paper with no existing notes
+2. Type text in notes editor
+3. Wait for auto-save (1 second debounce)
+4. Verify note created in database
 
 **Success Criteria**:
-- Can type in editor immediately
+- Typing updates textarea
 - "Saving..." indicator appears
-- "Saved at {time}" appears after save
-- Note persists in database
+- Note created in database (check Convex dashboard)
+- "Saved at {time}" displays after save
+- No manual save button needed
 
-#### Test 2.4: Update Existing Note
-**Type**: Integration Test  
+#### Test 2.3: Notes Auto-Save - Update Note
+**Type**: Integration Test (Browser MCP)  
 **Steps**:
-1. Load paper with existing note
-2. Modify note content
+1. Navigate to paper with existing note
+2. Modify text
 3. Wait for auto-save
+4. Verify note updated
 
 **Success Criteria**:
-- Can edit existing note
-- Auto-save triggers after typing stops
-- Updated content persists
+- Existing note loads in editor
+- Changes trigger auto-save
+- Database updated correctly
 - Timestamp updates
 
-#### Test 2.5: Auto-Save Debouncing
+#### Test 2.4: Notes Auto-Save - Debouncing
 **Type**: Performance Test  
 **Steps**:
 1. Type rapidly in notes editor
@@ -211,368 +236,388 @@ Comprehensive testing and validation of PER-13 (Paper Detail Page with PDF Viewe
 
 **Success Criteria**:
 - Doesn't save on every keystroke
-- Waits ~1 second after typing stops
-- "Saving..." appears during save
-- Only one save request per typing burst
+- Waits for typing pause (~1s)
+- "Saving..." appears only once after pause
+- No excessive database writes
 
-#### Test 2.6: Auto-Save Error Handling
+#### Test 2.5: Notes Persistence
+**Type**: Integration Test  
+**Steps**:
+1. Add notes to paper
+2. Wait for auto-save
+3. Navigate away (back to homepage)
+4. Return to paper detail page
+
+**Success Criteria**:
+- Notes persist in database
+- Notes load when returning to page
+- Content unchanged
+- No data loss
+
+#### Test 2.6: Notes Loading State
+**Type**: UX Test  
+**Steps**:
+1. Navigate to paper with existing notes
+2. Observe loading behavior
+
+**Success Criteria**:
+- Notes load quickly (< 1s)
+- No flash of empty textarea
+- Smooth transition to content
+- Cursor can be placed immediately
+
+#### Test 2.7: Notes Character Limit
+**Type**: Boundary Test  
+**Steps**:
+1. Type very long note (>10,000 characters)
+2. Verify handling
+
+**Success Criteria**:
+- No character limit (or reasonable limit like 100k)
+- Auto-save works with long notes
+- No performance degradation
+- Textarea scrolls properly
+
+#### Test 2.8: Notes Error Handling
 **Type**: Error Test  
 **Steps**:
-1. Simulate network failure
-2. Type in notes
+1. Simulate save failure (disconnect network)
+2. Type notes
 3. Observe error behavior
 
 **Success Criteria**:
-- Error message if save fails
-- Notes remain in editor (not lost)
-- Can retry save
-- Indicates unsaved changes
-
-#### Test 2.7: Large Notes (>10KB)
-**Type**: Performance Test  
-**Steps**:
-1. Type or paste large amount of text
-2. Verify auto-save works
-
-**Success Criteria**:
-- Handles large notes
-- Auto-save still works
-- No performance degradation
-- Text area scrollable
-
-#### Test 2.8: Notes Persistence Across Navigation
-**Type**: Integration Test  
-**Steps**:
-1. Take notes on paper
-2. Wait for auto-save
-3. Navigate to homepage
-4. Return to paper detail
-
-**Success Criteria**:
-- Notes still visible after navigation
+- Error message displays
+- Note content preserved in textarea
+- Can retry when connection restored
 - No data loss
-- Loads quickly
 
 ---
 
-### 3. Paper Metadata Display (6 tests)
+### 3. Paper Metadata Display (7 tests)
 
-#### Test 3.1: Title and Authors Display
+#### Test 3.1: Metadata Rendering
 **Type**: Visual Test  
 **Steps**:
-1. Navigate to paper detail page
-2. Verify title and authors display
+1. Navigate to TinyTroupe paper detail page
+2. Verify all metadata displays
 
 **Success Criteria**:
-- Title displays prominently
-- Authors display as comma-separated list
-- Proper typography and spacing
+- Title: "TinyTroupe: An LLM-powered Multiagent Persona Simulation Toolkit"
+- Authors: "Paulo Salem, Robert Sim, Christopher Olsen..." (6 authors)
+- Abstract: Full abstract visible
+- ArXiv ID: 2507.09788
+- Publication date displayed
+- Status badge: "To Read"
+- No tags (empty state)
 
-#### Test 3.2: Abstract Display
+#### Test 3.2: External ArXiv Link
+**Type**: Interaction Test (Browser MCP)  
+**Steps**:
+1. Click "View on ArXiv" link
+2. Verify opens correct URL
+
+**Success Criteria**:
+- Link opens in new tab
+- URL: https://arxiv.org/abs/2507.09788
+- Correct paper loads on ArXiv.org
+
+#### Test 3.3: Reading Status Badge Display
+**Type**: Visual Test  
+**Steps**:
+1. Verify status badge rendering
+
+**Success Criteria**:
+- Badge displays current status
+- Color-coded (blue for "To Read")
+- Matches PaperCard styling from PER-12
+- Positioned prominently
+
+#### Test 3.4: Tags Display - Empty State
+**Type**: Visual Test  
+**Steps**:
+1. Verify tags section when no tags
+
+**Success Criteria**:
+- Tags section visible
+- Shows placeholder or "No tags" message
+- "Add tag" button/input visible
+- Professional appearance
+
+#### Test 3.5: Created/Updated Timestamps
+**Type**: Visual Test  
+**Steps**:
+1. Verify timestamps display
+
+**Success Criteria**:
+- Created date shown
+- Last updated shown (if different)
+- Formatted as readable date (not Unix timestamp)
+- Relative time optional (e.g., "2 hours ago")
+
+#### Test 3.6: Abstract Formatting
 **Type**: Visual Test  
 **Steps**:
 1. Verify abstract displays correctly
 
 **Success Criteria**:
-- Full abstract visible (not truncated)
-- Readable line-height and spacing
-- Proper formatting
+- Full abstract visible (no truncation)
+- Line breaks preserved
+- Whitespace normalized
+- Readable typography
 
-#### Test 3.3: Reading Status Selector
+#### Test 3.7: Authors List Formatting
+**Type**: Visual Test  
+**Steps**:
+1. Verify authors display
+
+**Success Criteria**:
+- All 6 authors listed
+- Comma-separated or line-by-line
+- No truncation
+- Professional formatting
+
+---
+
+### 4. Reading Status & Tags (6 tests)
+
+#### Test 4.1: Update Reading Status
 **Type**: Interaction Test (Browser MCP)  
 **Steps**:
-1. Locate reading status dropdown
-2. Change status from "To Read" to "Reading"
+1. Click reading status selector
+2. Change from "To Read" → "Reading"
 3. Verify update
 
 **Success Criteria**:
-- Dropdown shows current status
-- Can change to any status
-- Update saves immediately
-- Status persists after refresh
+- Status selector opens (dropdown or buttons)
+- Can select different status
+- Status updates in database
+- Badge color changes (yellow for "Reading")
+- Homepage list reflects change (if navigated back)
 
-#### Test 3.4: Tags Display and Management
+#### Test 4.2: Reading Status - All Options
+**Type**: Interaction Test  
+**Steps**:
+1. Cycle through all statuses
+2. "To Read" → "Reading" → "Completed" → "To Read"
+
+**Success Criteria**:
+- All 3 statuses work
+- Badge colors update correctly
+  - To Read: Blue
+  - Reading: Yellow
+  - Completed: Green
+- Database updates for each change
+
+#### Test 4.3: Add Tag
 **Type**: Interaction Test (Browser MCP)  
 **Steps**:
-1. Add tag "machine-learning"
-2. Add tag "transformers"
-3. Remove first tag
+1. Click "Add tag" or type in tag input
+2. Enter tag: "multiagent systems"
+3. Press Enter or click Add
 
 **Success Criteria**:
-- Tags display as pills
-- Can add new tags
-- Can remove tags
-- Tags persist in database
+- Tag input accepts text
+- Tag added to paper
+- Tag displays in tags list
+- Database updated
+- Homepage shows tag on paper card
 
-#### Test 3.5: External ArXiv Link
-**Type**: Integration Test  
+#### Test 4.4: Remove Tag
+**Type**: Interaction Test  
 **Steps**:
-1. Click "View on ArXiv" link
+1. Click X or delete button on existing tag
+2. Verify tag removed
 
 **Success Criteria**:
-- Opens ArXiv page in new tab
-- Correct paper on ArXiv
-- Link has proper styling
+- Tag removed from display
+- Database updated
+- Homepage reflects removal
 
-#### Test 3.6: Timestamps Display
-**Type**: Visual Test  
+#### Test 4.5: Multiple Tags
+**Type**: Interaction Test  
 **Steps**:
-1. Verify created/updated timestamps
+1. Add 5 tags to paper
+2. Verify all display correctly
 
 **Success Criteria**:
-- Shows when paper was added
-- Shows when last updated
-- Dates formatted correctly
+- All tags visible
+- Tags wrapped if many
+- Each tag has remove button
+- Professional layout
 
----
-
-### 4. Reading Status & Tags (7 tests)
-
-#### Test 4.1: Update Status to "To Read"
-**Type**: Mutation Test (Browser MCP)  
-**Steps**:
-1. Change status to "To Read"
-2. Check Convex dashboard
-
-**Success Criteria**:
-- Status updates in database
-- Badge color changes (blue)
-- Homepage reflects change
-
-#### Test 4.2: Update Status to "Reading"
-**Type**: Mutation Test  
-**Steps**:
-1. Change status to "Reading"
-
-**Success Criteria**:
-- Status updates
-- Badge color changes (yellow)
-- Homepage reflects change
-
-#### Test 4.3: Update Status to "Completed"
-**Type**: Mutation Test  
-**Steps**:
-1. Change status to "Completed"
-
-**Success Criteria**:
-- Status updates
-- Badge color changes (green)
-- Homepage reflects change
-
-#### Test 4.4: Add Single Tag
-**Type**: Mutation Test (Browser MCP)  
-**Steps**:
-1. Enter tag name in input
-2. Click "Add" or press Enter
-
-**Success Criteria**:
-- Tag appears as pill
-- Tag persists in database
-- Input clears after adding
-
-#### Test 4.5: Add Multiple Tags
-**Type**: Mutation Test  
-**Steps**:
-1. Add 5 different tags
-
-**Success Criteria**:
-- All tags display correctly
-- No duplicate tags allowed
-- Tags wrap on multiple lines if needed
-
-#### Test 4.6: Remove Tag
-**Type**: Mutation Test (Browser MCP)  
-**Steps**:
-1. Click X on tag pill
-
-**Success Criteria**:
-- Tag disappears from display
-- Tag removed from database
-- Other tags unaffected
-
-#### Test 4.7: Tag Input Validation
+#### Test 4.6: Tag Validation
 **Type**: Validation Test  
 **Steps**:
 1. Try to add empty tag
-2. Try to add whitespace-only tag
+2. Try to add duplicate tag
+3. Try to add very long tag
 
 **Success Criteria**:
 - Empty tags rejected
-- Whitespace trimmed
-- "Add" button disabled for invalid input
+- Duplicate tags prevented or handled
+- Long tags truncated or wrapped
+- User-friendly validation messages
 
 ---
 
-### 5. Layout & Integration (6 tests)
+### 5. Layout & Integration (9 tests)
 
-#### Test 5.1: Two-Column Layout
-**Type**: Visual Test (Browser MCP)  
+#### Test 5.1: Page Layout Structure
+**Type**: Visual Test  
 **Steps**:
 1. Navigate to paper detail page
 2. Verify layout structure
 
 **Success Criteria**:
-- PDF on left (60-70% width)
-- Sidebar on right (30-40% width)
-- Proper spacing between columns
-- Height fills viewport
-
-#### Test 5.2: Sidebar Scrolling
-**Type**: UX Test  
-**Steps**:
-1. View paper with long abstract and many tags
-2. Scroll sidebar
-
-**Success Criteria**:
-- Sidebar scrolls independently
-- PDF stays fixed during scroll
-- Scrollbar visible when content overflows
-
-#### Test 5.3: Navigation Header Integration
-**Type**: Integration Test  
-**Steps**:
-1. Verify header displays correctly
-2. Click logo to return to homepage
-
-**Success Criteria**:
-- Header shows logo and user menu (from PER-11)
-- Logo link navigates to homepage
-- User menu still functional
-- Breadcrumb or back button (optional)
-
-#### Test 5.4: Responsive Design - Desktop
-**Type**: Responsive Test (Browser MCP)  
-**Steps**:
-1. View at desktop width (1920px)
-
-**Success Criteria**:
-- Two-column layout visible
-- Proper proportions (2:1 ratio)
+- Header from PER-11 visible
+- Two-column layout: PDF (left) + Notes/Metadata (right)
+- Proper spacing and margins
 - Professional appearance
+- Goodreads-inspired aesthetic
 
-#### Test 5.5: Responsive Design - Tablet
-**Type**: Responsive Test  
+#### Test 5.2: Layout Proportions
+**Type**: Visual Test  
 **Steps**:
-1. View at tablet width (768px)
+1. Measure column widths
 
 **Success Criteria**:
-- Layout adjusts appropriately
-- Stacks vertically or maintains columns
-- All features accessible
+- PDF viewer: 60-70% width
+- Notes/metadata sidebar: 30-40% width
+- Balanced proportions
+- No wasted space
 
-#### Test 5.6: Responsive Design - Mobile
-**Type**: Responsive Test  
+#### Test 5.3: Navigation from Homepage
+**Type**: Integration Test (Browser MCP)  
 **Steps**:
-1. View at mobile width (375px)
+1. Navigate to homepage
+2. Click TinyTroupe paper card
+3. Verify navigation to detail page
 
 **Success Criteria**:
-- Layout stacks vertically
-- PDF viewer usable on mobile
-- Notes editor accessible
-- All controls functional
+- URL changes to `/paper/j97dx96r97y92wk24aw4z3362n7shyrz`
+- Detail page loads
+- Correct paper displays
+- No 404 error (PER-13 fixes this!)
+- Smooth transition
 
----
-
-### 6. Performance & Edge Cases (5 tests)
-
-#### Test 6.1: PDF Load Performance
-**Type**: Performance Test  
+#### Test 5.4: Back Navigation
+**Type**: Navigation Test (Browser MCP)  
 **Steps**:
-1. Navigate to paper detail
-2. Time until PDF fully rendered
+1. From paper detail page
+2. Click Goodpapers logo or browser back
+3. Return to homepage
 
 **Success Criteria**:
-- PDF loads < 5 seconds (spec requirement)
-- Loading indicator visible during load
-- Smooth transition when loaded
+- Navigates back to homepage
+- Paper still visible in list
+- State preserved (search, filters)
+- No data loss
 
-#### Test 6.2: PDF with Large File Size (>10MB)
-**Type**: Edge Case Test  
+#### Test 5.5: Direct URL Access
+**Type**: Navigation Test  
 **Steps**:
-1. Add paper with large PDF
-2. Test loading and navigation
+1. Navigate directly to `/paper/j97dx96r97y92wk24aw4z3362n7shyrz`
+2. Verify page loads correctly
 
 **Success Criteria**:
-- PDF loads successfully (may take longer)
-- Progress indicator shows loading
-- Can still navigate pages
-- No memory issues
+- Paper loads from URL
+- PDF displays
+- Notes load
+- Metadata correct
+- No authentication redirect (using mock user)
 
-#### Test 6.3: PDF with Single Page
-**Type**: Edge Case Test  
-**Steps**:
-1. Load paper with only 1 page
-2. Test navigation buttons
-
-**Success Criteria**:
-- Next/Previous buttons disabled
-- Page count shows "1 of 1"
-- PDF displays correctly
-
-#### Test 6.4: Concurrent Note Editing (Multi-Tab)
-**Type**: Edge Case Test  
-**Steps**:
-1. Open same paper in two browser tabs
-2. Edit notes in Tab 1
-3. Observe Tab 2
-
-**Success Criteria**:
-- Changes in Tab 1 appear in Tab 2 (real-time)
-- No conflicting saves
-- Last write wins (or proper merge)
-
-#### Test 6.5: Network Failure During Auto-Save
+#### Test 5.6: Invalid Paper ID
 **Type**: Error Test  
 **Steps**:
-1. Block network in DevTools
-2. Type in notes editor
-3. Unblock network
+1. Navigate to `/paper/invalid-id`
+2. Observe error handling
 
 **Success Criteria**:
-- Error message shows save failed
-- Notes not lost in editor
-- Retries when network restored
-- User can manually trigger save
+- Error message displays
+- "Paper not found" or similar
+- Link back to homepage
+- Doesn't crash app
+- Professional error UI
+
+#### Test 5.7: Responsive Design - Desktop
+**Type**: Responsive Test (Browser MCP)  
+**Steps**:
+1. Resize to desktop width (1920px)
+2. Verify layout
+
+**Success Criteria**:
+- Two-column layout maintained
+- PDF visible and readable
+- Notes editor accessible
+- No horizontal scroll
+- Proper spacing
+
+#### Test 5.8: Responsive Design - Smaller Desktop
+**Type**: Responsive Test  
+**Steps**:
+1. Resize to smaller desktop (1280px)
+2. Verify layout adjusts
+
+**Success Criteria**:
+- Layout still functional
+- PDF readable
+- Notes accessible
+- May stack vertically if needed
+- No broken layout
+
+#### Test 5.9: Real-Time Updates Across Tabs
+**Type**: Integration Test  
+**Steps**:
+1. Open paper detail in Tab 1
+2. Update status or add tag
+3. Open same paper in Tab 2
+4. Verify Tab 2 reflects changes
+
+**Success Criteria**:
+- Changes appear in Tab 2 without refresh
+- Real-time Convex reactivity working
+- Consistent state across tabs
+- No conflicts or race conditions
 
 ---
 
 ## Test Execution Order
 
-### Phase 1: Component Rendering (8 min)
-1. Paper detail page loads (5.1)
-2. PDF viewer renders (1.1)
-3. Notes editor renders (2.1)
-4. Metadata displays (3.1, 3.2)
+### Phase 1: Route & PDF Loading (15 min)
+1. Navigate to paper detail (5.3)
+2. PDF loads from storage (1.1)
+3. PDF loading state (1.7)
+4. Layout structure (5.1, 5.2)
 
-### Phase 2: PDF Viewer Functionality (12 min)
-5. Page navigation (1.2, 1.3)
-6. Zoom controls (1.4, 1.5, 1.6)
-7. Loading state (1.7)
-8. Error handling (1.9)
-9. CORS/Worker (1.10)
-10. Large PDFs (1.8)
+### Phase 2: PDF Viewer Interactions (12 min)
+5. Page navigation - next/previous (1.2)
+6. Page navigation - direct input (1.3)
+7. Zoom in (1.4)
+8. Zoom out (1.5)
+9. Fit to width (1.6)
+10. PDF scrolling (1.9)
 
 ### Phase 3: Notes Functionality (10 min)
-11. Load existing notes (2.2)
-12. Create new note (2.3)
-13. Update note (2.4)
-14. Auto-save debouncing (2.5)
-15. Auto-save errors (2.6)
-16. Large notes (2.7)
-17. Notes persistence (2.8)
+11. Notes editor rendering (2.1)
+12. Create note - auto-save (2.2)
+13. Update note - auto-save (2.3)
+14. Debouncing behavior (2.4)
+15. Notes persistence (2.5)
 
-### Phase 4: Metadata & Status (10 min)
-18. Reading status selector (3.3, 4.1-4.3)
-19. Tags management (3.4, 4.4-4.7)
-20. External link (3.5)
-21. Timestamps (3.6)
+### Phase 4: Metadata & Controls (10 min)
+16. Metadata display (3.1)
+17. External ArXiv link (3.2)
+18. Status badge (3.3)
+19. Update reading status (4.1, 4.2)
+20. Add/remove tags (4.3, 4.4, 4.5)
 
-### Phase 5: Performance & Edge Cases (10 min)
-22. PDF load performance (6.1)
-23. Large PDF handling (6.2)
-24. Single page PDF (6.3)
-25. Concurrent editing (6.4)
-26. Network failure (6.5)
+### Phase 5: Integration & Edge Cases (8 min)
+21. Back navigation (5.4)
+22. Direct URL access (5.5)
+23. Invalid paper ID (5.6)
+24. PDF error handling (1.8)
+25. Notes error handling (2.8)
+26. Real-time updates (5.9)
 
 ---
 
@@ -584,8 +629,8 @@ Comprehensive testing and validation of PER-13 (Paper Detail Page with PDF Viewe
 
 set -e
 
-echo "🧪 PER-13 Testing Suite: Paper Detail with PDF & Notes"
-echo "====================================================="
+echo "🧪 PER-13 Testing Suite: Paper Detail Page with PDF Viewer & Notes"
+echo "================================================================="
 
 cd goodpapers
 
@@ -595,7 +640,7 @@ echo "Phase 1: File Structure"
 echo "----------------------"
 
 echo "✓ Checking component files..."
-test -f "app/paper/[paperId]/page.tsx" && echo "  ✓ Paper detail route exists"
+test -f "app/paper/[paperId]/page.tsx" && echo "  ✓ Dynamic route exists"
 test -f "components/papers/PDFViewer.tsx" && echo "  ✓ PDFViewer.tsx exists"
 test -f "components/papers/NotesEditor.tsx" && echo "  ✓ NotesEditor.tsx exists"
 test -f "components/papers/PaperMetadata.tsx" && echo "  ✓ PaperMetadata.tsx exists"
@@ -617,86 +662,170 @@ npm run build && echo "  ✓ Production build succeeds"
 echo ""
 echo "Phase 4: Component Validation"
 echo "-----------------------------"
-grep -q "react-pdf" "components/papers/PDFViewer.tsx" && echo "  ✓ react-pdf imported"
-grep -q "useMutation" "components/papers/NotesEditor.tsx" && echo "  ✓ Auto-save mutation used"
-grep -q "useQuery" "components/papers/PaperDetailView.tsx" && echo "  ✓ Paper query used"
+grep -q "PDFViewer" "components/papers/PaperDetailView.tsx" && echo "  ✓ PDFViewer imported"
+grep -q "NotesEditor" "components/papers/PaperDetailView.tsx" && echo "  ✓ NotesEditor imported"
+grep -q "PaperMetadata" "components/papers/PaperDetailView.tsx" && echo "  ✓ PaperMetadata imported"
+grep -q "useQuery" "components/papers/PaperDetailView.tsx" && echo "  ✓ Convex queries used"
+grep -q "useMutation" "components/papers/NotesEditor.tsx" && echo "  ✓ Notes mutations used"
 
 echo ""
 echo "✅ Automated tests passed!"
 echo ""
 echo "🔍 Next: Manual testing in browser required"
 echo "   1. Start dev server: npm run dev"
-echo "   2. Navigate to paper detail page"
-echo "   3. Test PDF viewing (zoom, navigation)"
-echo "   4. Test notes editor (auto-save)"
-echo "   5. Test metadata editing (status, tags)"
+echo "   2. Navigate to: http://localhost:3000"
+echo "   3. Click paper card to access detail page"
+echo "   4. Test PDF viewer controls"
+echo "   5. Test notes auto-save"
+echo "   6. Test status/tags updates"
 ```
 
 ---
 
 ## Manual Test Checklist
 
-### Paper Detail Page Testing (Browser MCP)
+### Setup
+- [ ] Dev server running: `npm run dev`
+- [ ] Open browser to http://localhost:3000
+- [ ] TinyTroupe paper visible in homepage
+- [ ] Browser console open (check for errors)
 
-**Setup**:
-- [ ] Start dev server: `npm run dev`
-- [ ] Add at least one paper via homepage
-- [ ] Navigate to paper detail page from homepage
-- [ ] Open browser console (check for errors)
+### PDF Viewer Testing (Browser MCP)
 
-**PDF Viewer**:
-- [ ] PDF loads and displays correctly
-- [ ] First page visible on load
-- [ ] Click "Next" → page 2 displays
-- [ ] Click "Previous" → page 1 displays
-- [ ] Page counter shows "Page 1 of X"
-- [ ] Click zoom in (+) → PDF enlarges
-- [ ] Click zoom out (−) → PDF shrinks
-- [ ] Zoom percentage displays correctly
-- [ ] PDF text is selectable
+**Navigation to Detail Page**:
+- [ ] Click TinyTroupe paper card from homepage
+- [ ] URL changes to `/paper/j97dx96r97y92wk24aw4z3362n7shyrz`
+- [ ] Page loads (no 404 - THIS IS NEW IN PER-13!)
+- [ ] PDF starts loading
+
+**PDF Loading**:
+- [ ] Loading spinner displays
+- [ ] PDF loads within 5 seconds
+- [ ] First page of TinyTroupe PDF renders
 - [ ] No CORS errors in console
+- [ ] No 404 errors for PDF resource
 
-**Notes Editor**:
-- [ ] Notes editor visible on right side
-- [ ] Can type in editor immediately
-- [ ] Type "Test note" and wait
+**PDF Controls**:
+- [ ] "Previous" button disabled on page 1
+- [ ] Click "Next" → advances to page 2
+- [ ] Page counter shows "Page 2 of {N}"
+- [ ] Click "Previous" → returns to page 1
+- [ ] Click "+" → PDF zooms in (110%, 120%...)
+- [ ] Click "−" → PDF zooms out
+- [ ] Zoom percentage displays correctly
+- [ ] "Fit to Width" button scales PDF appropriately
+
+**PDF Display Quality**:
+- [ ] Text is readable
+- [ ] Images render correctly
+- [ ] No blurry rendering
+- [ ] Annotations visible (if any in PDF)
+- [ ] Scrolling is smooth
+
+### Notes Editor Testing (Browser MCP)
+
+**Notes Creation**:
+- [ ] Notes textarea visible
+- [ ] Placeholder text displays
+- [ ] Can click and type in textarea
+- [ ] Typing updates textarea content
+
+**Auto-Save Functionality**:
+- [ ] Type: "This paper introduces TinyTroupe..."
+- [ ] Wait 1-2 seconds
 - [ ] "Saving..." indicator appears
-- [ ] "Saved at {time}" appears
-- [ ] Refresh page → note persists
-- [ ] Edit note → auto-saves again
-- [ ] No lag or delays while typing
+- [ ] "Saved at {time}" displays after save
+- [ ] Check Convex dashboard → notes table → note created
 
-**Paper Metadata**:
-- [ ] Title displays prominently
-- [ ] Authors list visible
-- [ ] Abstract displays fully
-- [ ] Reading status dropdown shows current status
-- [ ] Can change reading status
-- [ ] Status persists after save
-- [ ] ArXiv link is clickable
-- [ ] Timestamps display correctly
+**Notes Persistence**:
+- [ ] Navigate back to homepage
+- [ ] Click paper again to return
+- [ ] Notes still present in editor
+- [ ] Content unchanged
+- [ ] No data loss
+
+**Notes Update**:
+- [ ] Modify existing note text
+- [ ] Wait for auto-save
+- [ ] "Saved at {time}" updates
+- [ ] Refresh page → changes persisted
+
+### Metadata & Controls Testing
+
+**Metadata Display**:
+- [ ] Paper title displays correctly
+- [ ] All authors listed
+- [ ] Abstract visible and readable
+- [ ] ArXiv link present and clickable
+- [ ] Publication date formatted nicely
+- [ ] Status badge correct color
+
+**Reading Status Update**:
+- [ ] Click status selector/dropdown
+- [ ] Change to "Reading"
+- [ ] Badge changes to yellow
+- [ ] Navigate to homepage → paper shows "Reading" badge
+- [ ] Return to detail → status still "Reading"
 
 **Tags Management**:
-- [ ] Tag input field visible
-- [ ] Enter tag name "machine-learning"
-- [ ] Click "Add" or press Enter
-- [ ] Tag appears as pill
-- [ ] Click X on tag → tag removed
-- [ ] Add multiple tags → all display
-- [ ] Tags persist after refresh
+- [ ] Click "Add tag" or tag input
+- [ ] Enter tag: "multiagent systems"
+- [ ] Press Enter or click Add
+- [ ] Tag appears in tags list
+- [ ] Add second tag: "LLM"
+- [ ] Both tags visible
+- [ ] Click X on tag to remove
+- [ ] Tag removed from display
+- [ ] Navigate to homepage → tags reflected on paper card
 
-**Navigation & Integration**:
-- [ ] Header displays with logo and user menu
-- [ ] Logo link returns to homepage
-- [ ] User menu still functional
+### Navigation Testing
+
+**Back to Homepage**:
+- [ ] Click Goodpapers logo in header
+- [ ] Returns to homepage
+- [ ] Paper list still displays
+- [ ] No data loss
+
+**Direct URL Access**:
+- [ ] Copy URL: `/paper/j97dx96r97y92wk24aw4z3362n7shyrz`
+- [ ] Open in new tab
+- [ ] Page loads correctly
+- [ ] PDF and notes display
+
+**Invalid Paper ID**:
+- [ ] Navigate to `/paper/invalid-id-123`
+- [ ] Error message displays
+- [ ] "Paper not found" or similar
 - [ ] Can navigate back to homepage
-- [ ] Can navigate to another paper
+- [ ] No app crash
 
-**Responsive Design**:
-- [ ] Resize to desktop (1920px) → two-column layout
-- [ ] Resize to tablet (768px) → layout adjusts
-- [ ] Resize to mobile (375px) → stacks vertically
-- [ ] All features accessible at all sizes
+---
+
+## Convex Dashboard Verification
+
+**Setup**:
+- [ ] Navigate to https://dashboard.convex.dev
+- [ ] Select project: impartial-wolf-773
+- [ ] Go to Data tab
+
+**Paper Verification**:
+- [ ] Check Data → papers table
+- [ ] Find TinyTroupe paper (ID: j97dx96r97y92wk24aw4z3362n7shyrz)
+- [ ] Verify pdfStorageId exists
+- [ ] Note paper metadata
+
+**Storage Verification**:
+- [ ] Check Data → _storage table
+- [ ] Find PDF file (match pdfStorageId)
+- [ ] Verify file size (should be 1-10 MB)
+- [ ] Note storage ID
+
+**Notes Verification**:
+- [ ] Check Data → notes table
+- [ ] Find note for TinyTroupe paper
+- [ ] Verify content matches what was typed
+- [ ] Verify paperId and userId correct
+- [ ] Check timestamps (createdAt, updatedAt)
 
 ---
 
@@ -704,135 +833,130 @@ echo "   5. Test metadata editing (status, tags)"
 
 ### Scenario 1: First-Time Paper View
 **Steps**:
-1. Click paper from homepage
-2. Paper detail page loads
-3. PDF renders
-4. Take first notes
+1. Click TinyTroupe paper from homepage
+2. Detail page loads for first time
+3. No existing notes
 
 **Expected Result**:
 ```
-1. Navigate to /paper/{paperId} ✓
-2. PDF loads on left side ✓
-3. Metadata displays on right ✓
-4. Type in notes editor ✓
-5. Auto-save triggers ✓
-6. "Saved at {time}" displays ✓
-7. Notes persist in database ✓
+1. Navigation to /paper/{paperId} ✓
+2. PDF loads and displays ✓
+3. Page shows: "Page 1 of 9" (or actual page count) ✓
+4. Notes editor empty with placeholder ✓
+5. Metadata displays: title, authors, abstract ✓
+6. Status: "To Read" ✓
+7. Tags: Empty ✓
+8. Load time < 5 seconds ✓
 ```
 
-**Database State**:
-```json
-// notes table should have new entry:
-{
-  "paperId": "<paper_id>",
-  "userId": "<user_id>",
-  "content": "Test note",
-  "createdAt": 1697414400000,
-  "updatedAt": 1697414400000
-}
-```
-
-### Scenario 2: Research Workflow
+### Scenario 2: Reading and Note-Taking Workflow
 **Steps**:
-1. Open paper detail
-2. Read PDF (navigate pages, zoom in)
+1. Navigate to paper detail
+2. Read PDF pages (navigate through pages)
 3. Take notes while reading
-4. Mark as "Reading"
-5. Add tags
-6. Return to homepage
+4. Change status to "Reading"
+5. Add tags: "multiagent systems", "LLM", "simulation"
 
 **Expected Result**:
 ```
-1. PDF loads ✓
-2. Can navigate pages smoothly ✓
-3. Zoom works for detailed reading ✓
-4. Notes auto-save as typing ✓
-5. Status updates to "Reading" ✓
-6. Tags added: "nlp", "transformers" ✓
-7. Homepage shows updated status ✓
+1. PDF navigation smooth ✓
+2. Can advance through pages easily ✓
+3. Notes auto-save as typing ✓
+4. "Saving..." and "Saved at {time}" indicators ✓
+5. Status changes to "Reading" with yellow badge ✓
+6. Tags added and displayed ✓
+7. Navigate away and back → all changes persisted ✓
 ```
 
-### Scenario 3: Returning to Paper
+### Scenario 3: Completing a Paper
 **Steps**:
-1. View paper, take notes
-2. Navigate to homepage
-3. Return to same paper
-4. Continue note-taking
+1. Finish reading paper
+2. Add final notes
+3. Change status to "Completed"
+4. Return to homepage
 
 **Expected Result**:
 ```
-1. Previous notes display immediately ✓
-2. PDF remembers last page (optional) ✓
-3. Can continue editing notes ✓
-4. Auto-save still works ✓
-5. No data loss ✓
+1. Final notes auto-save ✓
+2. Status changes to "Completed" ✓
+3. Badge turns green ✓
+4. Homepage shows paper with "Completed" badge ✓
+5. Filter by "Completed" → paper appears ✓
 ```
 
 ---
 
 ## Browser MCP Test Commands
 
-### Test 1: PDF Viewer
+### Test 1: Navigate to Detail Page
 ```typescript
-// Navigate to paper detail
-browser.navigate("http://localhost:3000/paper/<paperId>");
-
-// Wait for PDF to load
-browser.waitFor({ time: 5 });
-
-// Take screenshot
-browser.screenshot("pdf-viewer.png");
-
-// Test navigation
-browser.click({ element: "Next page button", ref: "<ref>" });
+browser.navigate("http://localhost:3000");
+browser.click({ element: "TinyTroupe paper card", ref: "<ref>" });
+browser.waitFor({ text: "TinyTroupe", time: 3 });
 browser.snapshot();
+// Verify: PDF viewer visible
+// Verify: Notes editor visible
+// Verify: Metadata displays
 ```
 
-### Test 2: Notes Editor
+### Test 2: PDF Page Navigation
 ```typescript
-// Type in notes
+browser.click({ element: "Next page button", ref: "<ref>" });
+browser.snapshot();
+// Verify: Page 2 displays
+// Verify: Page counter updated
+
+browser.click({ element: "Previous page button", ref: "<ref>" });
+browser.snapshot();
+// Verify: Back to page 1
+```
+
+### Test 3: Notes Auto-Save
+```typescript
 browser.type({
   element: "Notes textarea",
   ref: "<ref>",
-  text: "This is a test note about the paper",
-  slowly: false
+  text: "This paper introduces TinyTroupe, an LLM-powered simulation toolkit."
 });
-
-// Wait for auto-save
-browser.waitFor({ time: 2 });
-
-// Verify save indicator
+browser.waitFor({ time: 2 }); // Wait for auto-save debounce
 browser.snapshot();
-// Should show "Saved at {time}"
+// Verify: "Saved at {time}" displays
+// Verify: Note in Convex dashboard
 ```
 
-### Test 3: Tags Management
+### Test 4: Update Reading Status
 ```typescript
-// Add tag
+browser.click({ element: "Status selector", ref: "<ref>" });
+browser.click({ element: "Reading option", ref: "<ref>" });
+browser.snapshot();
+// Verify: Badge changes to yellow
+// Verify: Text changes to "Reading"
+```
+
+### Test 5: Add Tags
+```typescript
 browser.type({
   element: "Tag input",
   ref: "<ref>",
-  text: "machine-learning",
-  submit: false
+  text: "multiagent systems",
+  submit: true
 });
-browser.click({ element: "Add tag button", ref: "<ref>" });
-
-// Verify tag appears
 browser.snapshot();
+// Verify: Tag appears in tags list
 ```
 
-### Test 4: Status Change
-```typescript
-// Change reading status
-browser.selectOption({
-  element: "Reading status dropdown",
-  ref: "<ref>",
-  values: ["reading"]
-});
+---
 
-// Verify update
-browser.snapshot();
-```
+## Performance Benchmarks
+
+| Metric | Target | Measurement Method |
+|--------|--------|-------------------|
+| PDF load time | < 5s | Stopwatch from page load to PDF render |
+| Page navigation | < 500ms | Time between click and page render |
+| Zoom operation | < 200ms | Visual observation |
+| Notes auto-save | 1s debounce | Console log timestamp |
+| Status update | < 1s | Time to UI update |
+| Tag add | < 500ms | Time to appear in list |
 
 ---
 
@@ -842,39 +966,30 @@ browser.snapshot();
 - [ ] File structure tests pass
 - [ ] Type checking passes
 - [ ] Build succeeds
-- [ ] Component validation passes
+- [ ] Component imports validated
+- [ ] PDF.js worker configured
+- [ ] Dynamic route created
+- [ ] Convex queries integrated
+- [ ] Mutations integrated
 
-### Manual Browser Tests (34 tests)
+### Manual Browser Tests (32 tests)
 - [ ] PDF viewer works (10/10)
 - [ ] Notes editor works (8/8)
-- [ ] Metadata displays correctly (6/6)
-- [ ] Status/tags work (7/7)
-- [ ] Layout/integration works (6/6)
-- [ ] Performance acceptable (5/5)
+- [ ] Metadata displays (7/7)
+- [ ] Status/tags work (6/6)
+- [ ] Layout/integration works (9/9)
 
 ---
 
 ## Expected Test Duration
 
 - **Automated tests**: 5 minutes
-- **PDF viewer tests**: 8 minutes
-- **Notes editor tests**: 7 minutes
-- **Metadata tests**: 5 minutes
-- **Status/tags tests**: 5 minutes
-- **Layout/performance tests**: 8 minutes
-- **Total**: 38 minutes (~45 min with buffer)
-
----
-
-## Performance Benchmarks
-
-| Metric | Target | Measurement Method |
-|--------|--------|-------------------|
-| PDF load time | < 5s | Stopwatch from navigation to render |
-| Page navigation | < 500ms | Visual observation |
-| Auto-save delay | 1s | Time from last keystroke to save |
-| Status update | < 1s | Time from select to database update |
-| Tag add/remove | < 1s | Time from action to UI update |
+- **Route navigation tests**: 5 minutes
+- **PDF viewer tests**: 12 minutes
+- **Notes editor tests**: 10 minutes
+- **Metadata & controls tests**: 10 minutes
+- **Integration tests**: 8 minutes
+- **Total**: 50 minutes (includes buffer)
 
 ---
 
@@ -884,27 +999,51 @@ browser.snapshot();
 
 ✅ **PDF Viewer**:
 - PDF loads and displays correctly
-- Navigation and zoom work smoothly
-- Loading states professional
-- Error handling graceful
+- Page navigation works
+- Zoom controls functional
+- Loading states work
+- No CORS errors
 
 ✅ **Notes Editor**:
-- Auto-save works reliably
+- Can type notes
+- Auto-save working (1s debounce)
+- Notes persist across navigation
+- Saving indicators display
 - No data loss
-- Performance good
-- Real-time updates function
 
-✅ **Metadata Management**:
+✅ **Metadata & Controls**:
 - All metadata displays correctly
-- Status updates work
-- Tags management functional
-- Links work
+- Reading status updates work
+- Tags add/remove work
+- Changes reflect on homepage
 
 ✅ **Integration**:
-- Layout is professional
-- Navigation works
-- Responsive design adequate
-- Performance meets targets
+- Navigation from homepage works (no 404!)
+- Back navigation works
+- Direct URL access works
+- Real-time updates working
+- Professional appearance
+
+---
+
+## Key Differences from PER-12
+
+### Before PER-13 (Current State):
+- ❌ Clicking paper → 404 error
+- ❌ Cannot view PDFs
+- ❌ Cannot take notes
+- ❌ Cannot update status from detail view
+- ❌ Cannot add tags from detail view
+
+### After PER-13 (Expected):
+- ✅ Clicking paper → Detail page loads
+- ✅ Can view PDF in browser
+- ✅ Can take notes with auto-save
+- ✅ Can update reading status
+- ✅ Can add/remove tags
+- ✅ Full paper management experience
+
+**This is a MAJOR usability improvement!**
 
 ---
 
@@ -912,20 +1051,28 @@ browser.snapshot();
 
 Once PER-13 is complete and tested:
 
-1. **PER-14**: Polish, Observability & Deployment
-   - UI refinements and animations
-   - Error boundary improvements
-   - Observability setup (Vercel Analytics, Convex logs)
-   - Production deployment configuration
-   - Performance optimization
+1. **PER-14**: Polish & Deploy
+   - UI refinements
+   - Additional loading states
+   - Error handling improvements
+   - Production deployment
 
-2. **PER-15**: Final Testing & Launch Validation
-   - End-to-end smoke tests
+2. **PER-15**: Final Testing & Launch
    - Cross-browser testing
-   - Performance validation
-   - Launch readiness checklist
+   - Performance optimization
+   - User acceptance testing
 
 ---
 
-**Testing Focus**: PDF viewing and note-taking must be seamless for research workflow! 📄📝
+## Notes for Testing
+
+- **Use TinyTroupe paper** (already in database from PER-12 testing)
+- **PDF is real**: Actual 9-page academic paper from ArXiv
+- **Mock auth working**: Test user already authenticated
+- **Convex dashboard**: Keep open to verify database updates
+- **Browser console**: Monitor for errors during testing
+
+---
+
+**Testing Focus**: Reading experience must be smooth and distraction-free! 📖
 
