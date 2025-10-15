@@ -1,59 +1,147 @@
-# Convex Setup Instructions
+# Goodpapers Convex Backend
 
-## Initial Setup Required
+## Schema
 
-The Convex CLI requires interactive setup. Please run these commands:
+### Papers
+- Core paper metadata from ArXiv
+- Reading status tracking
+- Tags for organization
+- Timestamps for sorting
 
-### 1. Initialize Convex Project
-```bash
-cd /Users/mark/Documents/work/goodpapers/goodpapers
-npx convex dev --configure=new
-```
+### Notes
+- Paper-level markdown notes
+- One note per paper (V1)
 
-This will:
-- Prompt you to login/create Convex account
-- Create a new Convex project
-- Generate `.env.local` with `NEXT_PUBLIC_CONVEX_URL`
-- Create `convex/_generated/` folder with TypeScript types
+### Users
+- User profiles from Convex Auth
+- Multi-user support (future)
 
-### 2. Set up Convex Auth
-```bash
-npx @convex-dev/auth
-```
+## Queries
 
-This will:
-- Create `convex/auth.ts` configuration
-- Set up authentication infrastructure
-- Provide instructions for OAuth providers
+### `papers.listRecentPapers`
+Get last N modified papers for a user.
 
-### 3. Configure Google OAuth
+**Arguments:**
+- `userId` (id): User ID
+- `limit` (optional number): Number of papers to return (default: 10)
 
-After Convex setup, configure Google OAuth:
+**Returns:** Array of Paper objects sorted by updatedAt (most recent first)
 
-**In Google Cloud Console:**
-1. Go to https://console.cloud.google.com
-2. Create new project: "Goodpapers"
-3. **No APIs need to be enabled** (Google+ was deprecated in 2019, OAuth works without it)
-4. Create OAuth 2.0 Client ID (APIs & Services → Credentials):
-   - Type: Web application
-   - Name: "Goodpapers"
-   - Authorized redirect URI: `https://[your-deployment].convex.site/api/auth/callback/google`
-     (Get exact URL from Convex dashboard)
-5. Copy Client ID and Secret
+### `papers.listPapers`
+Get all papers for a user with optional filtering.
 
-**Set in Convex:**
-```bash
-npx convex env set AUTH_GOOGLE_ID <your_client_id>
-npx convex env set AUTH_GOOGLE_SECRET <your_client_secret>
-```
+**Arguments:**
+- `userId` (id): User ID
+- `status` (optional): Filter by reading status ("to_read", "reading", "completed")
+- `tag` (optional string): Filter by tag
 
-### 4. Verify Setup
-```bash
-npx convex dev  # Should connect and watch files
-npm run build   # Should pass with no errors
-```
+**Returns:** Array of Paper objects sorted by updatedAt (most recent first)
 
-## After Setup
+### `papers.getPaper`
+Get a single paper by ID.
 
-Once Convex is configured, you can proceed with PER-9 (Backend Schema) and PER-10 (ArXiv Integration) in parallel.
+**Arguments:**
+- `paperId` (id): Paper ID
 
+**Returns:** Paper object or null if not found
+
+### `papers.getPaperByArxivId`
+Get paper by ArXiv ID for duplicate checking.
+
+**Arguments:**
+- `arxivId` (string): ArXiv ID
+- `userId` (id): User ID
+
+**Returns:** Paper object or null if not found
+
+### `papers.searchPapers`
+Full-text search across title, authors, abstract.
+
+**Arguments:**
+- `userId` (id): User ID
+- `query` (string): Search query
+
+**Returns:** Array of up to 20 Paper objects matching the search
+
+### `notes.getNotesByPaper`
+Get note for a specific paper.
+
+**Arguments:**
+- `paperId` (id): Paper ID
+
+**Returns:** Note object or null if no note exists
+
+## Mutations
+
+### `papers.createPaper`
+Add new paper (prevents duplicates by arxivId).
+
+**Arguments:**
+- `userId` (id): User ID
+- `title` (string): Paper title
+- `authors` (array): Array of author names
+- `abstract` (string): Paper abstract
+- `arxivId` (string): ArXiv ID
+- `arxivUrl` (string): ArXiv URL
+- `pdfUrl` (string): PDF URL
+- `publishedDate` (optional string): Publication date
+- `pdfStorageId` (optional id): Convex storage ID
+
+**Returns:** Paper ID
+
+**Throws:** Error if paper with same arxivId already exists for user
+
+### `papers.updatePaper`
+Update reading status and tags.
+
+**Arguments:**
+- `paperId` (id): Paper ID
+- `readingStatus` (optional): New reading status
+- `tags` (optional array): New tags array
+
+**Returns:** Paper ID
+
+### `papers.deletePaper`
+Delete paper and associated notes.
+
+**Arguments:**
+- `paperId` (id): Paper ID
+
+**Returns:** { success: true }
+
+### `notes.saveNote`
+Create or update note for a paper.
+
+**Arguments:**
+- `paperId` (id): Paper ID
+- `userId` (id): User ID
+- `content` (string): Markdown content
+
+**Returns:** Note ID
+
+### `notes.deleteNote`
+Delete a note.
+
+**Arguments:**
+- `noteId` (id): Note ID
+
+**Returns:** { success: true }
+
+## Testing
+
+Run `npm run build` to verify TypeScript compilation.
+
+For full testing, use Convex dashboard:
+1. Go to: https://dashboard.convex.dev
+2. Select project: impartial-wolf-773
+3. Navigate to "Functions" tab
+4. Test queries and mutations with sample data
+
+(Dashboard: https://dashboard.convex.dev)
+
+## Performance Notes
+
+- All queries use proper indexes for fast lookups
+- Search uses Convex's built-in full-text search
+- Duplicate prevention implemented via unique indexes
+- Reading status and tags updates are atomic
