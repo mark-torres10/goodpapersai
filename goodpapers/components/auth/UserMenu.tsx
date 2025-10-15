@@ -33,15 +33,17 @@ export function UserMenu() {
 
   // Close menu when clicking outside
   useEffect(() => {
+    if (!isOpen) {
+      return; // Don't add listener if menu is closed
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);

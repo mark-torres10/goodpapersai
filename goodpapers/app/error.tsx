@@ -13,17 +13,18 @@ import { useEffect } from "react";
 import Link from "next/link";
 
 /**
- * Error Boundary Component
- * 
+ * Application Error Boundary Component
+ *
  * Displays error UI when something goes wrong.
  * Provides a reset button to try recovering.
- * 
+ * Note: Renamed from "Error" to avoid shadowing the global Error constructor.
+ *
  * @param props - Error boundary props
  * @param props.error - The error that was thrown
  * @param props.reset - Function to reset the error boundary
  * @returns Error UI
  */
-export default function Error({
+export default function AppError({
   error,
   reset,
 }: {
@@ -35,6 +36,9 @@ export default function Error({
     console.error("Application error:", error);
   }, [error]);
 
+  // Sanitize error message for production
+  const displayErrorMessage = process.env.NODE_ENV === "development" ? error.message : null;
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-10 shadow-xl text-center">
@@ -45,6 +49,8 @@ export default function Error({
               stroke="currentColor"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
@@ -60,9 +66,9 @@ export default function Error({
           <p className="mt-2 text-sm text-gray-600">
             We encountered an unexpected error. Please try again.
           </p>
-          {error.message && (
+          {displayErrorMessage && (
             <p className="mt-4 text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-              {error.message}
+              {displayErrorMessage}
             </p>
           )}
         </div>
