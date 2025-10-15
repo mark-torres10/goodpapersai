@@ -107,7 +107,7 @@ export async function fetchArxivMetadata(
   }
 
   // Extract title (trim whitespace and newlines)
-  const title = entry.title?.replace(/\s+/g, " ").trim();
+  const title = entry.title.replace(/\s+/g, " ").trim();
 
   // Extract abstract (trim whitespace)
   const abstract = entry.summary?.replace(/\s+/g, " ").trim() || "";
@@ -146,11 +146,11 @@ async function fetchWithRetry(
   timeoutMs = 15000
 ): Promise<Response> {
   for (let i = 0; i < maxRetries; i++) {
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      timer = setTimeout(() => controller.abort(), timeoutMs);
       const response = await fetch(url, { ...init, signal: controller.signal });
-      clearTimeout(timer);
 
       if (response.ok) {
         return response;
@@ -194,6 +194,8 @@ async function fetchWithRetry(
       }
       if (i === maxRetries - 1) throw error;
       await new Promise((resolve) => setTimeout(resolve, baseDelayMs * Math.pow(2, i)));
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
 
