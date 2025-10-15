@@ -152,3 +152,63 @@
 **Status**: PER-8 FULLY COMPLETE AND TESTED ✅  
 **Ready**: PER-9 and PER-10 can start immediately in parallel
 
+---
+
+### 2025-10-14 - PER-9 COMPLETE ✅
+
+**Ticket**: PER-9 - Backend Schema & Core Functions  
+**Status**: ✅ COMPLETE  
+**PR**: https://github.com/mark-torres10/goodpapersai/pull/6  
+**Time**: ~3 hours (including comprehensive testing and CodeRabbit AI improvements)
+
+**Completed**:
+- ✅ Complete Convex schema with papers, notes, and users tables
+- ✅ All query functions: listRecentPapers, listPapers, getPaper, getPaperByArxivId, searchPapers
+- ✅ All mutation functions: createPaper, updatePaper, deletePaper, saveNote, deleteNote
+- ✅ Performance indexes: by_user, by_user_updated, by_arxiv_id, by_user_arxiv, search_papers
+- ✅ TypeScript types and validation (PaperId, NoteId, UserId aliases)
+- ✅ Comprehensive testing suite with automated and manual tests
+- ✅ Detailed README with function documentation
+- ✅ Frontend integration validated (ConvexClientProvider working)
+- ✅ Build passing (TypeScript strict mode + Next.js build)
+
+**Performance Optimizations**:
+- ✅ Composite index `by_user_arxiv` for efficient ArXiv lookups
+- ✅ Server-side filtering for readingStatus reduces memory usage
+- ✅ Search index with user filtering for fast queries
+- ✅ Cascade deletion of notes when papers are deleted
+
+**Code Quality** (CodeRabbit AI Review):
+- ✅ All 8 CodeRabbit AI suggestions implemented
+- ✅ ID type aliases added for better ergonomics
+- ✅ Markdown lint issues fixed
+- ✅ Backend modules imported in tests for compile-time validation
+- ✅ Optimized query patterns for better performance
+
+**Testing**:
+- ✅ Schema compilation and validation
+- ✅ TypeScript strict mode passes
+- ✅ Frontend build passes (Next.js 15)
+- ✅ Functions deployed successfully to Convex
+- ✅ Manual testing instructions provided for Convex dashboard
+
+**Files Created**:
+- `goodpapers/convex/schema.ts` - Complete database schema
+- `goodpapers/convex/types.ts` - TypeScript helper types with ID aliases
+- `goodpapers/convex/papers.ts` - All paper queries and mutations
+- `goodpapers/convex/notes.ts` - Note management functions
+- `goodpapers/convex/README.md` - Comprehensive API documentation
+- `goodpapers/test-backend.ts` - Comprehensive testing suite
+
+**Key Features**:
+- ✅ Duplicate prevention by ArXiv ID (per user)
+- ✅ Full-text search across titles, authors, abstracts
+- ✅ Reading status tracking (to_read, reading, completed)
+- ✅ Tags for organization
+- ✅ Paper-level markdown notes (one note per paper)
+- ✅ Multi-user support ready (userId on all tables)
+
+**Next Actions**:
+- 🚀 PER-10: ArXiv API Integration (can proceed immediately)
+- 🚀 PER-11: Auth & Layout (depends on PER-9 ✅, PER-10)
+

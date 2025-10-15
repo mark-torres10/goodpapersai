@@ -26,15 +26,20 @@
 
 ## Phase 2: Backend (2.5-3 hours) - Can run in parallel
 
-**PER-9: Convex Backend - Database Schema & Core Functions**
-- [ ] Define schema (papers, notes, users tables)
-- [ ] Create validators for all tables
-- [ ] Set up indexes (by_arxiv_id, by_user_modified, etc.)
-- [ ] Set up search indexes (search_content, search_authors, etc.)
-- [ ] Implement paper queries (list, get, getRecentlyModified, search, autocomplete)
-- [ ] Implement paper mutations (create, update, delete, addTag, removeTag)
-- [ ] Implement note queries/mutations
-- [ ] Implement user queries/mutations
+**PER-9: Convex Backend - Database Schema & Core Functions** ✅ COMPLETE  
+**PR**: https://github.com/mark-torres10/goodpapersai/pull/6  
+**Actual Time**: 3 hours (including testing and CodeRabbit AI improvements)
+
+- [x] Define schema (papers, notes, users tables)
+- [x] Create validators for all tables
+- [x] Set up indexes (by_user, by_user_updated, by_arxiv_id, by_user_arxiv)
+- [x] Set up search indexes (search_papers with user filtering)
+- [x] Implement paper queries (listRecentPapers, listPapers, getPaper, getPaperByArxivId, searchPapers)
+- [x] Implement paper mutations (createPaper, updatePaper, deletePaper with cascade)
+- [x] Implement note queries/mutations (getNotesByPaper, saveNote, deleteNote)
+- [x] Add TypeScript type aliases (PaperId, NoteId, UserId)
+- [x] Apply CodeRabbit AI performance optimizations
+- [x] Comprehensive testing and documentation
 
 **PER-10: ArXiv API Integration & PDF Storage**
 - [ ] Create ArXiv utilities (URL parsing, ID extraction)
@@ -130,5 +135,5 @@
 
 ---
 
-**Total Progress**: 1/8 tickets completed (12.5%)
+**Total Progress**: 2/8 tickets completed (25.0%)
 
