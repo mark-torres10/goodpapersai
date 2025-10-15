@@ -53,6 +53,11 @@ export async function fetchArxivMetadata(
     throw new Error(`Paper not found: ${arxivId}`);
   }
 
+  // Check if entry has actual content (ArXiv returns empty entry for non-existent papers)
+  if (!entry.title || entry.title.trim() === "") {
+    throw new Error(`Paper not found: ${arxivId}`);
+  }
+
   // Parse authors (can be single object or array)
   let authors: string[] = [];
   if (entry.author) {
@@ -74,7 +79,7 @@ export async function fetchArxivMetadata(
   }
 
   // Extract title (trim whitespace and newlines)
-  const title = entry.title?.replace(/\s+/g, " ").trim() || "Untitled";
+  const title = entry.title?.replace(/\s+/g, " ").trim();
 
   // Extract abstract (trim whitespace)
   const abstract = entry.summary?.replace(/\s+/g, " ").trim() || "";
@@ -88,7 +93,7 @@ export async function fetchArxivMetadata(
   const pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
 
   return {
-    title,
+    title: title || `ArXiv Paper ${arxivId}`,
     authors,
     abstract,
     arxivId,
