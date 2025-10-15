@@ -6,6 +6,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { PDFViewer } from "./PDFViewer";
 import { NotesEditor } from "./NotesEditor";
 import { PaperMetadata } from "./PaperMetadata";
+import { isValidConvexId, getPdfUrl } from "@/lib/convex";
 import Link from "next/link";
 
 interface PaperDetailViewProps {
@@ -13,11 +14,36 @@ interface PaperDetailViewProps {
 }
 
 export function PaperDetailView({ paperId }: PaperDetailViewProps) {
-  const paper = useQuery(api.papers.getPaper, {
-    paperId: paperId as Id<"papers">,
-  });
+  // Validate paperId format before using it
+  const isValidId = isValidConvexId(paperId);
+  
+  const paper = useQuery(
+    api.papers.getPaper,
+    isValidId ? { paperId: paperId as Id<"papers"> } : "skip"
+  );
 
   const currentUser = useQuery(api.users.getCurrentUser);
+
+  // Handle invalid paper ID
+  if (!isValidId) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900">Invalid Paper ID</h2>
+          <p className="text-gray-600 mt-2">
+            The paper ID in the URL is not valid.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (paper === undefined || currentUser === undefined) {
     return (
@@ -61,8 +87,29 @@ export function PaperDetailView({ paperId }: PaperDetailViewProps) {
     );
   }
 
-  // Construct PDF URL from storage ID
-  const pdfUrl = `https://impartial-wolf-773.convex.site/pdf/${paper.pdfStorageId}`;
+  // Validate PDF storage ID exists
+  if (!paper.pdfStorageId) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="text-6xl mb-4">📄</div>
+          <h2 className="text-xl font-semibold text-gray-900">PDF Not Available</h2>
+          <p className="text-gray-600 mt-2">
+            This paper does not have a PDF file stored.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Construct PDF URL from storage ID using environment variable
+  const pdfUrl = getPdfUrl(paper.pdfStorageId);
 
   return (
     <div className="h-[calc(100vh-8rem)]">
