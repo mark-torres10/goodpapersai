@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { PDFViewer } from "./PDFViewer";
+import dynamic from "next/dynamic";
 import { NotesEditor } from "./NotesEditor";
 import { PaperMetadata } from "./PaperMetadata";
 import { isValidConvexId, getPdfUrl } from "@/lib/convex";
@@ -14,6 +14,7 @@ interface PaperDetailViewProps {
 }
 
 export function PaperDetailView({ paperId }: PaperDetailViewProps) {
+  const PDFViewer = dynamic(() => import("./PDFViewer").then(m => m.PDFViewer), { ssr: false });
   // Validate paperId format before using it
   const isValidId = isValidConvexId(paperId);
   

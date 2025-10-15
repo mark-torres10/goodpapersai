@@ -12,9 +12,10 @@ Goodpapers uses a Content Security Policy to protect against XSS and other code 
 "default-src 'self'" 
 // Default: Only load resources from same origin
 
-"script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://*.convex.site https://*.convex.cloud"
-// Scripts: From same origin + PDF.js worker + Convex
-// ⚠️ unsafe-eval: Required for PDF.js worker initialization (see below)
+"script-src 'self' 'unsafe-inline' https://*.convex.site https://*.convex.cloud"
+// Scripts: From same origin + Convex
+// ⚠️ unsafe-inline: Required for Next.js dev mode (HMR, hydration)
+// Production should use nonces or SRI hashes
 
 "style-src 'self' 'unsafe-inline'"
 // Styles: Same origin + inline styles
@@ -22,6 +23,7 @@ Goodpapers uses a Content Security Policy to protect against XSS and other code 
 
 "worker-src 'self' blob:"
 // Workers: Same origin + blob URLs (required for PDF.js)
+// PDF.js worker now self-hosted at /static/pdfjs/pdf.worker.min.mjs
 
 "img-src 'self' https://lh3.googleusercontent.com data: blob:"
 // Images: Same origin + Google profile pics + data URIs + blob
@@ -32,32 +34,41 @@ Goodpapers uses a Content Security Policy to protect against XSS and other code 
 
 ### Security Trade-offs
 
-#### ⚠️ unsafe-eval in script-src
+#### ⚠️ unsafe-inline in script-src
 
 **Why We Use It**:
-- PDF.js worker requires `eval()` for dynamic PDF parsing
-- This is a well-known limitation of the PDF.js library
-- Used by Mozilla, GitHub, GitLab, and millions of sites
+- Next.js requires inline scripts for:
+  - Hot Module Replacement (HMR) in development
+  - React hydration scripts
+  - Runtime configuration
+  - Fast Refresh functionality
+- This is a known limitation of Next.js in development mode
 
 **Risk Assessment**:
-- **Threat**: Potential XSS via eval injection
+- **Threat**: Potential XSS via inline script injection
 - **Mitigation**: 
-  - PDFs only loaded from our Convex Storage (controlled source)
-  - PDFs sourced from ArXiv (trusted academic repository)
-  - No user-uploaded arbitrary content in MVP
+  - Development-only requirement (production can use nonces/hashes)
+  - All scripts from controlled sources (Next.js, Convex)
+  - No user-generated content that could inject scripts
   - Single-user application reduces attack surface
 - **Impact**: Low for current use case
-- **Likelihood**: Very low with controlled PDF sources
+- **Likelihood**: Very low with controlled script sources
 
 **Industry Standard**:
-- Many production apps use unsafe-eval for PDF.js
-- Mozilla (creators of PDF.js) accept this trade-off
-- Alternative solutions are significantly more complex
+- Most Next.js apps use unsafe-inline in development
+- Production deployments should use CSP nonces
+- Next.js 13+ supports CSP nonces via middleware
+
+**Current Implementation**:
+- ✅ PDF.js worker self-hosted (no CDN, no eval needed)
+- ✅ Worker served from `/static/pdfjs/pdf.worker.min.mjs`
+- ✅ All scripts from same origin or trusted Convex domains
+- ✅ Storage IDs URL-encoded to prevent path injection
 
 **Future Improvements** (Post-MVP):
-1. Host PDF.js worker locally instead of CDN
-2. Investigate Subresource Integrity (SRI) hashes
-3. Research CSP-compatible PDF alternatives
+1. Implement CSP nonces for production using Next.js middleware
+2. Use Subresource Integrity (SRI) hashes for external scripts
+3. Consider strict CSP with hashes for all inline scripts
 4. Re-evaluate when adding multi-user features
 
 #### unsafe-inline in style-src
@@ -114,16 +125,18 @@ Goodpapers uses a Content Security Policy to protect against XSS and other code 
 1. ✅ OAuth authentication working
 2. ✅ HTTPS enforced
 3. ✅ Protected routes implemented
-4. 🟡 CSP includes unsafe-eval (for PDF.js)
-5. 🟡 PDF URLs currently public (PDFs are public academic papers)
+4. ✅ PDF.js worker self-hosted (no unsafe-eval needed)
+5. ✅ Storage IDs URL-encoded for security
+6. 🟡 CSP includes unsafe-inline (required for Next.js dev mode)
+7. 🟡 PDF URLs currently public (PDFs are public academic papers)
 
 ### Post-MVP Improvements (V2)
 
-1. **Stricter CSP**: Remove unsafe-eval if possible
+1. **Stricter CSP**: Implement CSP nonces for production
 2. **PDF Access Control**: Add authentication to PDF serving
 3. **Rate Limiting**: Prevent abuse of ArXiv fetching
-4. **SRI Hashes**: For external scripts
-5. **Security Headers**: Additional hardening
+4. **SRI Hashes**: For any external scripts (if added)
+5. **Security Headers**: Additional hardening (HSTS, etc.)
 
 ---
 

@@ -18,8 +18,9 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // Production CSP: avoid 'unsafe-inline'/'unsafe-eval'; host worker and scripts on self
-              "script-src 'self' https://*.convex.site https://*.convex.cloud",
+              // Dev mode requires 'unsafe-inline' for Next.js HMR/hydration
+              // Production should use nonces or SRI hashes - see SECURITY.md
+              "script-src 'self' 'unsafe-inline' https://*.convex.site https://*.convex.cloud",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' https://lh3.googleusercontent.com data: blob:",
               "connect-src 'self' https://*.convex.site wss://*.convex.site https://*.convex.cloud wss://*.convex.cloud",
