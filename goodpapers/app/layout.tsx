@@ -1,18 +1,42 @@
+/**
+ * Root Layout Component
+ * 
+ * The root layout for the Goodpapers application. This layout wraps all pages
+ * and provides global configuration including fonts, metadata, and Convex backend
+ * connectivity.
+ * 
+ * @module app/layout
+ */
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "./ConvexClientProvider";
 
+// Configure Inter font from Google Fonts
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
+/**
+ * Application metadata for SEO and browser display
+ */
 export const metadata: Metadata = {
   title: "Goodpapers - Academic Paper Tracker",
   description: "Track, organize, and annotate academic papers - like Goodreads for research",
 };
 
+/**
+ * Root Layout Component
+ * 
+ * Provides the HTML structure and global providers for the entire application.
+ * Includes Inter font, Tailwind CSS styling, and Convex backend provider.
+ * 
+ * @param props - Layout props
+ * @param props.children - Page content to render within the layout
+ * @returns The root HTML structure with all providers
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
