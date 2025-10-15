@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://impartial-wolf-773.convex.site",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' https://lh3.googleusercontent.com data:",
-              "connect-src 'self' https://impartial-wolf-773.convex.site wss://impartial-wolf-773.convex.site",
+              "connect-src 'self' https://impartial-wolf-773.convex.site wss://impartial-wolf-773.convex.site https://impartial-wolf-773.convex.cloud wss://impartial-wolf-773.convex.cloud",
               "frame-src 'none'",
               "font-src 'self' data:",
             ].join("; "),
