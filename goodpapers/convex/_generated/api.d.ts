@@ -13,6 +13,9 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as arxiv_actions from "../arxiv/actions.js";
+import type * as arxiv_api from "../arxiv/api.js";
+import type * as arxiv_parser from "../arxiv/parser.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as notes from "../notes.js";
@@ -28,6 +31,9 @@ import type * as types from "../types.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "arxiv/actions": typeof arxiv_actions;
+  "arxiv/api": typeof arxiv_api;
+  "arxiv/parser": typeof arxiv_parser;
   auth: typeof auth;
   http: typeof http;
   notes: typeof notes;
