@@ -9,9 +9,6 @@
  * @module components/auth/UserMenu
  */
 
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
@@ -19,18 +16,20 @@ import Image from "next/image";
  * User Menu
  *
  * Displays a dropdown menu with user info and sign-out button.
- * Fetches current user data and handles sign-out action.
- * Includes click-outside detection to close the menu.
+ * Note: Auth functionality temporarily disabled for testing.
  *
  * @returns User menu component
  */
 export function UserMenu() {
-  const { signOut } = useAuthActions();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Get current user info
-  const user = useQuery(api.users.getCurrentUser);
+  // Mock user data for testing
+  const user = {
+    name: "Test User",
+    email: "test@example.com",
+    image: "https://lh3.googleusercontent.com/a/default-user"
+  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -49,32 +48,12 @@ export function UserMenu() {
     };
   }, [isOpen]);
 
-  // Handle case where auth context isn't available
-  if (!signOut) {
-    return null;
-  }
-
   const handleSignOut = async () => {
-    if (!confirm("Are you sure you want to sign out?")) {
-      return;
-    }
-
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Sign out failed:", error);
-    }
+    // TODO: Implement sign-out functionality
+    console.log("Sign-out would be implemented here");
   };
 
-  // Loading state while user data is fetching
-  if (!user) {
-    return (
-      <div className="flex items-center space-x-3 rounded-full bg-gray-100 px-4 py-2">
-        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
-        <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
-      </div>
-    );
-  }
+  // User data is available (mock data for testing)
 
   return (
     <div className="relative" ref={menuRef}>
