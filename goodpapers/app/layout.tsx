@@ -11,7 +11,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ConvexClientProvider from "./ConvexClientProvider";
 
 // Configure Inter font from Google Fonts
 const inter = Inter({
@@ -33,10 +32,11 @@ export const metadata: Metadata = {
 
 /**
  * Root Layout Component
- * 
+ *
  * Provides the HTML structure and global providers for the entire application.
- * Includes Inter font, Tailwind CSS styling, and Convex backend provider.
- * 
+ * Includes Inter font and Tailwind CSS styling.
+ * Note: Convex backend provider temporarily disabled for testing.
+ *
  * @param props - Layout props
  * @param props.children - Page content to render within the layout
  * @returns The root HTML structure with all providers
@@ -49,9 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased font-sans">
-        <ConvexClientProvider>
-          {children}
-        </ConvexClientProvider>
+        {children}
       </body>
     </html>
   );
