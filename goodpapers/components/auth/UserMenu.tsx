@@ -49,11 +49,16 @@ export function UserMenu() {
     };
   }, [isOpen]);
 
+  // Handle case where auth context isn't available
+  if (!signOut) {
+    return null;
+  }
+
   const handleSignOut = async () => {
     if (!confirm("Are you sure you want to sign out?")) {
       return;
     }
-    
+
     try {
       await signOut();
     } catch (error) {

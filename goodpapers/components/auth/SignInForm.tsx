@@ -24,6 +24,15 @@ export function SignInForm() {
   const { signIn } = useAuthActions();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handle case where auth context isn't available
+  if (!signIn) {
+    return (
+      <div className="text-center">
+        <p className="text-gray-600">Authentication not available</p>
+      </div>
+    );
+  }
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
