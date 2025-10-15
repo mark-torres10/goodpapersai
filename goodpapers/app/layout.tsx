@@ -17,14 +17,18 @@ import ConvexClientProvider from "./ConvexClientProvider";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 /**
  * Application metadata for SEO and browser display
  */
 export const metadata: Metadata = {
-  title: "Goodpapers - Academic Paper Tracker",
-  description: "Track, organize, and annotate academic papers - like Goodreads for research",
+  title: "Goodpapers - Academic Paper Reading Tracker",
+  description: "Track, organize, and annotate your academic paper reading like Goodreads for research papers.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 /**
