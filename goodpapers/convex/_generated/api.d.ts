@@ -21,6 +21,7 @@ import type * as http from "../http.js";
 import type * as notes from "../notes.js";
 import type * as papers from "../papers.js";
 import type * as types from "../types.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   notes: typeof notes;
   papers: typeof papers;
   types: typeof types;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
