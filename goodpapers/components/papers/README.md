@@ -101,7 +101,67 @@ All components integrate with:
 - Tailwind CSS for styling
 - TypeScript for type safety
 
+### PDFViewer.tsx
+Displays PDF documents with interactive controls:
+- Page navigation (previous/next)
+- Zoom controls (in/out/fit to width)
+- Loading states with spinner
+- Error handling with user-friendly messages
+- Uses react-pdf library
+
+**Usage:**
+```tsx
+import { PDFViewer } from "@/components/papers/PDFViewer";
+
+<PDFViewer pdfUrl={pdfUrl} />
+```
+
+### NotesEditor.tsx
+Markdown notes editor with auto-save functionality:
+- Real-time note taking
+- Auto-save with 1-second debounce
+- Loading/saved indicators
+- Error handling
+- Single note per paper (V1)
+
+**Usage:**
+```tsx
+import { NotesEditor } from "@/components/papers/NotesEditor";
+
+<NotesEditor paperId={paperId} userId={userId} />
+```
+
+### PaperMetadata.tsx
+Displays and manages paper metadata:
+- Title, authors, abstract display
+- Reading status selector (dropdown)
+- Tags management (add/remove)
+- ArXiv external link
+- Publication and creation dates
+
+**Usage:**
+```tsx
+import { PaperMetadata } from "@/components/papers/PaperMetadata";
+
+<PaperMetadata paper={paper} />
+```
+
+### PaperDetailView.tsx
+Main paper detail page layout component:
+- Two-column layout (PDF left, metadata/notes right)
+- Integrates PDFViewer, NotesEditor, PaperMetadata
+- Loading states
+- Error handling for missing papers
+- Authentication check
+
+**Usage:**
+```tsx
+import { PaperDetailView } from "@/components/papers/PaperDetailView";
+
+<PaperDetailView paperId={paperId} />
+```
+
 ## Testing
 
-See `projects/2025-10-14_goodpapers_v1_mvp/tickets/ticket-005.md` for comprehensive testing plan.
+See `projects/2025-10-14_goodpapers_v1_mvp/tickets/ticket-005.md` and `ticket-006.md` for comprehensive testing plans.
 
