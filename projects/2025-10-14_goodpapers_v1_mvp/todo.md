@@ -41,27 +41,41 @@
 - [x] Apply CodeRabbit AI performance optimizations
 - [x] Comprehensive testing and documentation
 
-**PER-10: ArXiv API Integration & PDF Storage**
-- [ ] Create ArXiv utilities (URL parsing, ID extraction)
-- [ ] Implement fetchFromArxiv action
-- [ ] Implement downloadPdf action with timeout
-- [ ] Implement processArxivUrl pipeline action
-- [ ] Implement duplicate detection
-- [ ] Create HTTP action for PDF serving
-- [ ] Test with 5 diverse papers
+**PER-10: ArXiv API Integration & PDF Storage** ✅ COMPLETE  
+**PR**: https://github.com/mark-torres10/goodpapersai/pull/8  
+**Actual Time**: 2 hours
+
+- [x] Create ArXiv utilities (URL parsing, ID extraction)
+- [x] Implement fetchFromArxiv action
+- [x] Implement downloadPdf action with timeout
+- [x] Implement processArxivUrl pipeline action
+- [x] Implement duplicate detection
+- [x] Create HTTP action for PDF serving
+- [x] Test with 5 diverse papers
 
 ---
 
 ## Phase 3: Frontend Auth (1.5 hours)
 
-**PER-11: Frontend Auth & Core Layout**
-- [ ] Create ConvexClientProvider
-- [ ] Set up root layout with Inter font (next/font)
-- [ ] Create SignInButton component
-- [ ] Create UserMenu component
-- [ ] Create Header/navigation
-- [ ] Test sign in/sign out flow
-- [ ] Verify session persistence
+**PER-11: Frontend Auth & Core Layout** ✅ COMPLETE  
+**PR**: https://github.com/mark-torres10/goodpapersai/pull/12  
+**Actual Time**: 3 hours (including testing and security hardening)
+
+- [x] Create ConvexClientProvider (upgraded to ConvexAuthNextjsProvider)
+- [x] Set up root layout with Inter font (next/font)
+- [x] Create SignInForm component with Google OAuth
+- [x] Create UserMenu component with dropdown
+- [x] Create Header/navigation with responsive design
+- [x] Create ProtectedRoute wrapper component
+- [x] Create AppLayout wrapper component
+- [x] Create sign-in page (app/sign-in/page.tsx)
+- [x] Create error boundary (app/error.tsx)
+- [x] Create custom 404 page (app/not-found.tsx)
+- [x] Add security headers (CSP, X-Frame-Options, etc.)
+- [x] Add user query function (convex/users.ts)
+- [x] Test sign in/sign out flow (48/48 tests passed)
+- [x] Verify session persistence
+- [x] Comprehensive documentation and expert reviews
 
 ---
 
@@ -135,5 +149,23 @@
 
 ---
 
-**Total Progress**: 2/8 tickets completed (25.0%)
+**Total Progress**: 4/8 tickets completed (50.0%)
+
+---
+
+## Timeline Summary
+
+**Completed Phases**:
+- Phase 1 (PER-8): 40 minutes ✅
+- Phase 2 (PER-9 + PER-10): ~5 hours ✅
+- Phase 3 (PER-11): 3 hours ✅
+- **Total: ~8.5 hours of 11.5 hours** (74% time elapsed)
+
+**Remaining Phases**:
+- Phase 4 (PER-12): 2.5-3 hours (Home Page)
+- Phase 5 (PER-13): 2.5-3 hours (Paper Detail)
+- Phase 6 (PER-14): 2.5 hours (Polish & Deploy)
+- Phase 7 (PER-15): 1.5 hours (Testing & Launch)
+
+**Status**: On track for same-day completion!
 

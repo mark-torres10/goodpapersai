@@ -64,7 +64,7 @@
 | PER-8 | Phase 1: Project Setup & Infrastructure | 30 min | Urgent | None | Done | https://github.com/mark-torres10/goodpapersai/pull/5 |
 | PER-9 | Phase 2: Convex Backend - Schema & Functions | 2.5-3 hrs | Urgent | PER-8 | Done | https://github.com/mark-torres10/goodpapersai/pull/6 |
 | PER-10 | Phase 2B: ArXiv API Integration & PDF Storage | 2 hrs | Urgent | PER-8 | Done | https://github.com/mark-torres10/goodpapersai/pull/8 |
-| PER-11 | Phase 3: Frontend Auth & Core Layout | 1.5 hrs | Urgent | PER-8, PER-9 | In Progress | - |
+| PER-11 | Phase 3: Frontend Auth & Core Layout | 1.5 hrs | Urgent | PER-8, PER-9 | Done | https://github.com/mark-torres10/goodpapersai/pull/12 |
 | PER-12 | Phase 4: Home Page with Search & Paper List | 2.5 hrs | Urgent | PER-8-11 | Todo | - |
 | PER-13 | Phase 5: Paper Detail with PDF & Notes | 2.5 hrs | Urgent | PER-8-12 | Todo | - |
 | PER-14 | Phase 6: Polish, Observability & Deploy | 2.5 hrs | High | PER-8-13 | Todo | - |
