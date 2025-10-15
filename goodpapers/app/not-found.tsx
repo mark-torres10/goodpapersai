@@ -8,9 +8,15 @@
  */
 
 import Link from "next/link";
+import type { Metadata } from "next";
 
 // Force dynamic rendering to avoid build-time auth context issues
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Page Not Found - Goodpapers",
+  description: "The page you're looking for doesn't exist.",
+};
 
 /**
  * Not Found Page Component

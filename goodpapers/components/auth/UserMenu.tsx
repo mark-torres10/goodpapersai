@@ -50,6 +50,10 @@ export function UserMenu() {
   }, [isOpen]);
 
   const handleSignOut = async () => {
+    if (!confirm("Are you sure you want to sign out?")) {
+      return;
+    }
+    
     try {
       await signOut();
     } catch (error) {
@@ -57,22 +61,34 @@ export function UserMenu() {
     }
   };
 
+  // Loading state while user data is fetching
+  if (!user) {
+    return (
+      <div className="flex items-center space-x-3 rounded-full bg-gray-100 px-4 py-2">
+        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+        <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-3 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       >
-        {user?.image && (
+        {user.image && (
           <Image
             src={user.image}
             alt={user.name || "User"}
             width={32}
             height={32}
             className="h-8 w-8 rounded-full"
+            priority={true}
+            sizes="32px"
           />
         )}
-        <span>{user?.name || "User"}</span>
+        <span>{user.name || "User"}</span>
         <svg
           className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
@@ -84,10 +100,10 @@ export function UserMenu() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+        <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 z-50">
           <div className="px-4 py-2 border-b border-gray-100">
-            <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            <p className="text-sm font-medium text-gray-900">{user.name}</p>
+            <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
           
           <button

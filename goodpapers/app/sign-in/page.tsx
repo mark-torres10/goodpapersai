@@ -8,9 +8,16 @@
  */
 
 import { SignInForm } from "@/components/auth/SignInForm";
+import type { Metadata } from "next";
 
 // Force dynamic rendering for auth pages
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Sign In - Goodpapers",
+  description: "Sign in to Goodpapers with your Google account to track and organize your academic paper reading.",
+  robots: "noindex, nofollow", // Don't index auth pages
+};
 
 /**
  * Sign In Page Component
