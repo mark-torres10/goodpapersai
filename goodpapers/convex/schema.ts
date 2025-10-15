@@ -32,6 +32,7 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_updated", ["userId", "updatedAt"])
     .index("by_arxiv_id", ["arxivId"])
+    .index("by_user_arxiv", ["userId", "arxivId"])
     .searchIndex("search_papers", {
       searchField: "title",
       filterFields: ["userId"],

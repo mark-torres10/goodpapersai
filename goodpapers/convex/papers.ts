@@ -48,14 +48,12 @@ const listPapers = query({
     let papers = await ctx.db
       .query("papers")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .filter((q) =>
+        args.status ? q.eq(q.field("readingStatus"), args.status) : true
+      )
       .collect();
 
-    // Filter by status if provided
-    if (args.status) {
-      papers = papers.filter((p) => p.readingStatus === args.status);
-    }
-
-    // Filter by tag if provided
+    // Filter by tag if provided (tags require client-side filter due to array includes)
     if (args.tag) {
       papers = papers.filter((p) => p.tags.includes(args.tag!));
     }
@@ -87,8 +85,9 @@ const getPaperByArxivId = query({
   handler: async (ctx, args) => {
     const paper = await ctx.db
       .query("papers")
-      .withIndex("by_arxiv_id", (q) => q.eq("arxivId", args.arxivId))
-      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .withIndex("by_user_arxiv", (q) =>
+        q.eq("userId", args.userId).eq("arxivId", args.arxivId)
+      )
       .first();
 
     return paper;
@@ -131,8 +130,9 @@ const createPaper = mutation({
     // Check for duplicate ArXiv ID
     const existing = await ctx.db
       .query("papers")
-      .withIndex("by_arxiv_id", (q) => q.eq("arxivId", args.arxivId))
-      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .withIndex("by_user_arxiv", (q) =>
+        q.eq("userId", args.userId).eq("arxivId", args.arxivId)
+      )
       .first();
 
     if (existing) {

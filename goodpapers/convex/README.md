@@ -134,8 +134,10 @@ Run `npm run build` to verify TypeScript compilation.
 For full testing, use Convex dashboard:
 1. Go to: https://dashboard.convex.dev
 2. Select project: impartial-wolf-773
-3. Navigate to Functions tab
+3. Navigate to "Functions" tab
 4. Test queries and mutations with sample data
+
+(Dashboard: https://dashboard.convex.dev)
 
 ## Performance Notes
 

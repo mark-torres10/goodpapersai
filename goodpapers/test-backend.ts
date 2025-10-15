@@ -16,6 +16,10 @@ import { join } from "path";
 // Load environment variables from .env.local
 config({ path: join(process.cwd(), ".env.local") });
 
+// Ensure backend modules compile and exports are registered
+import "./convex/papers";
+import "./convex/notes";
+
 // Initialize Convex client
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 if (!convexUrl) {
