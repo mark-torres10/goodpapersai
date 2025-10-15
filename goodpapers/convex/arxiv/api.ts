@@ -93,7 +93,7 @@ export async function fetchArxivMetadata(
   const pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
 
   return {
-    title: title || `ArXiv Paper ${arxivId}`,
+    title,
     authors,
     abstract,
     arxivId,
@@ -111,7 +111,7 @@ export async function fetchArxivMetadata(
 async function fetchWithRetry(
   url: string,
   maxRetries = 3,
-  delayMs = 3000
+  baseDelayMs = 1000
 ): Promise<Response> {
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -120,16 +120,35 @@ async function fetchWithRetry(
         return response;
       }
 
-      // If 429 (rate limit), wait and retry
+      // If 429 (rate limit), check Retry-After header and wait
       if (response.status === 429 && i < maxRetries - 1) {
+        const retryAfter = response.headers.get("Retry-After");
+        const delayMs = retryAfter
+          ? parseInt(retryAfter, 10) * 1000
+          : baseDelayMs * Math.pow(2, i);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue;
+      }
+
+      // Don't retry client errors (4xx except 429) or server errors that won't recover
+      if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Exponential backoff for other errors
+      if (i < maxRetries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, baseDelayMs * Math.pow(2, i)));
         continue;
       }
 
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {
+      // Don't retry TypeError (invalid URL, network configuration issues)
+      if (error instanceof TypeError && i === 0) {
+        throw error;
+      }
       if (i === maxRetries - 1) throw error;
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await new Promise((resolve) => setTimeout(resolve, baseDelayMs * Math.pow(2, i)));
     }
   }
 

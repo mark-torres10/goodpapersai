@@ -51,7 +51,8 @@ http.route({
       return new Response(blob, {
         status: 200,
         headers: {
-          "Content-Type": "application/pdf",
+          "Content-Type": blob.contentType || "application/pdf",
+          "Content-Length": blob.size?.toString(),
           "Cache-Control": "public, max-age=31536000", // Cache for 1 year
           "Access-Control-Allow-Origin": "*", // Allow CORS for PDF viewer
         },

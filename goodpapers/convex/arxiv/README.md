@@ -22,7 +22,7 @@ Returns:
 ### Serve PDF
 
 PDFs are served via HTTP action:
-```
+```text
 https://[your-deployment].convex.site/pdf/[storageId]
 ```
 
