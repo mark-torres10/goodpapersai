@@ -17,11 +17,11 @@ import Image from "next/image";
 
 /**
  * User Menu
- * 
+ *
  * Displays a dropdown menu with user info and sign-out button.
  * Fetches current user data and handles sign-out action.
  * Includes click-outside detection to close the menu.
- * 
+ *
  * @returns User menu component
  */
 export function UserMenu() {

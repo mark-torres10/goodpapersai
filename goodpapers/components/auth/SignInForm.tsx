@@ -14,10 +14,10 @@ import { useState } from "react";
 
 /**
  * Sign In Form
- * 
+ *
  * Displays a Google OAuth sign-in button with loading state.
  * Initiates the OAuth flow when clicked.
- * 
+ *
  * @returns Sign-in form component
  */
 export function SignInForm() {

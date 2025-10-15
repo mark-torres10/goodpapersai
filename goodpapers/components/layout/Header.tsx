@@ -15,7 +15,7 @@ import Link from "next/link";
 
 /**
  * Header Component
- * 
+ *
  * Displays the application header with logo and user menu.
  * Responsive design with max-width container.
  * 
