@@ -10,6 +10,7 @@
  */
 
 import { useEffect } from "react";
+import Link from "next/link";
 
 /**
  * Error Boundary Component
@@ -73,12 +74,12 @@ export default function Error({
           >
             Try again
           </button>
-          <a
+          <Link
             href="/"
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Go to homepage
-          </a>
+          </Link>
         </div>
       </div>
     </div>
