@@ -162,14 +162,12 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 
 interface PaperPageProps {
-  params: Promise<{
+  params: {
     paperId: string;
-  }>;
+  };
 }
 
-export default async function PaperPage(props: PaperPageProps) {
-  const params = await props.params;
-  
+export default function PaperPage({ params }: PaperPageProps) {
   return (
     <ProtectedRoute>
       <AppLayout>

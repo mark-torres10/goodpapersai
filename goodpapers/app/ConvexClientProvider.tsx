@@ -13,7 +13,19 @@
 import { ReactNode } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+// Validate and retrieve Convex URL
+function getConvexUrl(): string {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_CONVEX_URL environment variable. " +
+      "Please ensure .env.local file exists with NEXT_PUBLIC_CONVEX_URL configured."
+    );
+  }
+  return url;
+}
+
+const convex = new ConvexReactClient(getConvexUrl());
 
 /**
  * Convex Provider
