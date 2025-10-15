@@ -11,20 +11,22 @@
 
 | Phase | Estimated | Actual | Variance | Status |
 |-------|-----------|--------|----------|--------|
-| Phase 1: Setup | 30 min | - | - | Not Started |
-| Phase 2: Backend Schema | 2.5-3 hrs | - | - | Not Started |
-| Phase 2B: ArXiv Integration | 2 hrs | - | - | Not Started |
-| Phase 3: Auth & Layout | 1.5 hrs | - | - | Not Started |
-| Phase 4: Home Page | 2.5 hrs | - | - | Not Started |
-| Phase 5: Paper Detail | 2.5 hrs | - | - | Not Started |
-| Phase 6: Polish & Deploy | 2.5 hrs | - | - | Not Started |
-| Phase 7: Testing | 1.5 hrs | - | - | Not Started |
-| **Total** | **11.5 hrs** | **-** | **-** | **0% Complete** |
+| Phase 1: Setup (PER-8) | 30 min | 40 min | +10 min (+33%) | ✅ Done |
+| Phase 2: Backend Schema (PER-9) | 2.5-3 hrs | - | - | In Progress |
+| Phase 2B: ArXiv Integration (PER-10) | 2 hrs | - | - | In Progress |
+| Phase 3: Auth & Layout (PER-11) | 1.5 hrs | - | - | Todo |
+| Phase 4: Home Page (PER-12) | 2.5 hrs | - | - | Todo |
+| Phase 5: Paper Detail (PER-13) | 2.5 hrs | - | - | Todo |
+| Phase 6: Polish & Deploy (PER-14) | 2.5 hrs | - | - | Todo |
+| Phase 7: Testing (PER-15) | 1.5 hrs | - | - | Todo |
+| **Total** | **11.5 hrs** | **40 min** | **+10 min** | **12.5% Complete** |
 
 ### Velocity Metrics
-- **Tickets Completed**: 0/8
-- **Progress**: 0%
-- **Estimated Completion**: TBD (after starting)
+- **Tickets Completed**: 1/8
+- **Progress**: 12.5%
+- **Time Spent**: 40 minutes
+- **Estimated Remaining**: ~10.5 hours
+- **On Track**: Yes (within acceptable variance)
 
 ---
 

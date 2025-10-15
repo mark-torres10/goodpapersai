@@ -5,7 +5,7 @@
 **Project URL**: https://linear.app/metresearch/project/goodpapers-v1-mvp-academic-paper-reading-tracker-92ca77070efe  
 **Team**: Personal Projects  
 **Team ID**: 15640717-d921-4309-867d-2dc8418ce106  
-**Status**: Planned  
+**Status**: In Progress (PER-8 Complete)  
 **Created**: 2025-10-14  
 **Deadline**: 2025-10-14 (Ship TODAY)  
 
