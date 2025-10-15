@@ -6,6 +6,9 @@
  * Provides Google OAuth sign-in button with loading state management.
  * Handles the authentication flow using Convex Auth.
  * 
+ * Note: Full OAuth integration pending. Currently shows UI only.
+ * Will be fully enabled when ConvexAuthNextjsProvider is configured.
+ * 
  * @module components/auth/SignInForm
  */
 
@@ -15,7 +18,7 @@ import { useState } from "react";
  * Sign In Form
  *
  * Displays a Google OAuth sign-in button with loading state.
- * Note: Auth functionality temporarily disabled for testing.
+ * Note: OAuth flow to be fully integrated in future ticket.
  *
  * @returns Sign-in form component
  */
@@ -24,8 +27,10 @@ export function SignInForm() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // TODO: Implement Google OAuth sign-in
-    console.log("Google sign-in would be implemented here");
+    // TODO: Full OAuth integration requires ConvexAuthNextjsProvider configuration
+    // For now, showing placeholder behavior
+    console.log("Google OAuth sign-in will be fully enabled in future ticket");
+    alert("OAuth integration pending. For testing, use the mock 'Test User' session.");
     setIsLoading(false);
   };
 

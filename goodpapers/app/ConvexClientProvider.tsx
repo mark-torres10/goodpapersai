@@ -3,19 +3,35 @@
 /**
  * Convex Client Provider Component
  *
- * Note: Convex functionality temporarily disabled for testing.
- * In production, this would provide Convex backend connectivity.
+ * Provides Convex backend connectivity to the application.
+ * Note: Authentication provider (ConvexAuthNextjsProvider) will be enabled
+ * when full OAuth configuration is complete.
  *
  * @module app/ConvexClientProvider
  */
 
 import { ReactNode } from "react";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+
+// Validate and retrieve Convex URL
+function getConvexUrl(): string {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_CONVEX_URL environment variable. " +
+      "Please ensure .env.local file exists with NEXT_PUBLIC_CONVEX_URL configured."
+    );
+  }
+  return url;
+}
+
+const convex = new ConvexReactClient(getConvexUrl());
 
 /**
  * Convex Provider
  *
- * Note: Convex functionality temporarily disabled for testing.
- * In production, this would wrap the application with Convex context.
+ * Wraps the application with Convex context for database connectivity.
+ * Using basic ConvexProvider until auth configuration is fully integrated.
  *
  * @param props - Component props
  * @param props.children - Child components to wrap with Convex context
@@ -26,7 +42,6 @@ export default function ConvexClientProvider({
 }: {
   children: ReactNode;
 }) {
-  // TODO: Re-enable Convex provider when auth is working
-  return <>{children}</>;
+  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
 }
 
