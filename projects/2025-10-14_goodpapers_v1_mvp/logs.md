@@ -54,5 +54,59 @@
 
 ## Development Log
 
-_Logs will be added here as implementation progresses_
+### 2025-10-14 - PER-8 COMPLETE ✅
+
+**Ticket**: PER-8 - Phase 1: Project Setup & Infrastructure  
+**Status**: ✅ COMPLETE  
+**Time**: ~40 minutes total (10 min over estimate)
+
+**Completed**:
+- ✅ Next.js 15.5.5 initialized with TypeScript + App Router
+- ✅ Tailwind CSS v4 installed (Next.js 15 default, v3 incompatible)
+- ✅ TypeScript strict mode enabled by default
+- ✅ All dependencies installed (Convex, react-pdf, react-markdown, fast-xml-parser)
+- ✅ Convex project initialized: `impartial-wolf-773.convex.cloud`
+- ✅ `.env.local` configured with Convex URL
+- ✅ `convex/auth.ts` created with Google OAuth provider
+- ✅ `convex/http.ts` created with auth HTTP routes
+- ✅ `ConvexClientProvider` implemented (basic - will upgrade in PER-11)
+- ✅ Root layout updated with Inter font and Convex provider
+- ✅ Build passing (verified multiple times)
+- ✅ Setup documentation created
+
+**Issues Resolved**:
+1. **Tailwind CSS v3 → v4** (compatibility with Next.js 15)
+   - User memory updated to reflect Next.js 15+ uses Tailwind v4
+2. **ConvexAuthNextjsProvider SSR errors**
+   - Temporarily used basic ConvexProvider (will upgrade in PER-11)
+   - Auth configuration complete, ready for full implementation
+3. **Google+ API deprecated**
+   - Verified via Exa MCP that Google+ shut down in 2019
+   - Updated docs: Google OAuth works without Google+ API
+
+**Key Decisions**:
+- Defer Google OAuth credentials to PER-11 (Auth & Layout ticket)
+- Use basic ConvexProvider now, upgrade to ConvexAuthNextjsProvider in PER-11
+- This allows immediate progress on PER-9 and PER-10 in parallel
+
+**Next Actions**:
+- ✅ PER-8 complete - ready for parallel development
+- 🚀 Start PER-9 (Backend Schema) and PER-10 (ArXiv Integration) in parallel
+
+**Files Created**:
+- `/Users/mark/Documents/work/goodpapers/goodpapers/` - Full Next.js project
+- `app/ConvexClientProvider.tsx` - Convex React provider
+- `convex/auth.ts` - Auth configuration with Google OAuth
+- `convex/http.ts` - HTTP routes for auth
+- `README.md` - Complete setup instructions
+- `SETUP_STATUS.md` - Detailed status
+- `convex/README.md` - Convex setup guide
+- Reflection: `2025-10-14_PER-8_reflection.md`
+
+**Infrastructure Ready**:
+- ✅ Next.js 15 + TypeScript + Tailwind v4
+- ✅ Convex connected and configured
+- ✅ All dependencies installed
+- ✅ Build system working
+- ✅ Auth infrastructure prepared (OAuth config pending PER-11)
 
