@@ -13,6 +13,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 /**
  * User Menu
@@ -63,9 +64,11 @@ export function UserMenu() {
         className="flex items-center space-x-3 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       >
         {user?.image && (
-          <img
+          <Image
             src={user.image}
             alt={user.name || "User"}
+            width={32}
+            height={32}
             className="h-8 w-8 rounded-full"
           />
         )}

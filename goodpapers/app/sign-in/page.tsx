@@ -9,6 +9,9 @@
 
 import { SignInForm } from "@/components/auth/SignInForm";
 
+// Force dynamic rendering for auth pages
+export const dynamic = "force-dynamic";
+
 /**
  * Sign In Page Component
  * 

@@ -10,6 +10,9 @@
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 
+// Force dynamic rendering for auth-protected pages
+export const dynamic = "force-dynamic";
+
 /**
  * Home Page Component
  * 
