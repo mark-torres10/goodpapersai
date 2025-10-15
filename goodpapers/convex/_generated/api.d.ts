@@ -20,6 +20,7 @@ import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as notes from "../notes.js";
 import type * as papers from "../papers.js";
+import type * as setup from "../setup.js";
 import type * as types from "../types.js";
 import type * as users from "../users.js";
 
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   notes: typeof notes;
   papers: typeof papers;
+  setup: typeof setup;
   types: typeof types;
   users: typeof users;
 }>;
