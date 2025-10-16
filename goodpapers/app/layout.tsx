@@ -12,6 +12,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "./ConvexClientProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import { Analytics } from "@vercel/analytics/react";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 // Configure Inter font from Google Fonts
 const inter = Inter({
@@ -49,7 +54,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased font-sans">
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <ConvexClientProvider>
+          <ToastProvider>
+            {children}
+            <Analytics />
+          </ToastProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );

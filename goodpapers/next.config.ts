@@ -19,8 +19,9 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               // Dev mode requires 'unsafe-inline' for Next.js HMR/hydration
+              // 'unsafe-eval' required for PDF.js worker - industry standard for PDF rendering
               // Production should use nonces or SRI hashes - see SECURITY.md
-              "script-src 'self' 'unsafe-inline' https://*.convex.site https://*.convex.cloud",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.convex.site https://*.convex.cloud",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' https://lh3.googleusercontent.com data: blob:",
               "connect-src 'self' https://*.convex.site wss://*.convex.site https://*.convex.cloud wss://*.convex.cloud",

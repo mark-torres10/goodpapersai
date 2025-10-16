@@ -11,7 +11,8 @@
  */
 
 import { ReactNode } from "react";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexReactClient } from "convex/react";
+import { ConvexAuthNextjsProvider } from "@convex-dev/auth/nextjs";
 
 // Validate and retrieve Convex URL
 function getConvexUrl(): string {
@@ -42,6 +43,9 @@ export default function ConvexClientProvider({
 }: {
   children: ReactNode;
 }) {
-  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+  return (
+    <ConvexAuthNextjsProvider client={convex}>
+      {children}
+    </ConvexAuthNextjsProvider>
+  );
 }
-

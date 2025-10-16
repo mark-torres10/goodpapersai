@@ -11,6 +11,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 /**
  * User Menu
@@ -23,13 +26,12 @@ import Image from "next/image";
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  // Mock user data for testing
-  const user = {
-    name: "Test User",
-    email: "test@example.com",
-    image: "https://lh3.googleusercontent.com/a/default-user"
-  };
+  
+  // Get real user data from Convex
+  const user = useQuery(api.users.getCurrentUser);
+  
+  // Get auth actions - must be called unconditionally
+  const authActions = useAuthActions();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -51,11 +53,31 @@ export function UserMenu() {
   }, [isOpen]);
 
   const handleSignOut = async () => {
-    // TODO: Implement sign-out functionality
-    console.log("Sign-out would be implemented here");
+    if (!authActions?.signOut) {
+      console.error("Sign out not available");
+      return;
+    }
+    try {
+      await authActions.signOut();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    }
   };
 
-  // User data is available (mock data for testing)
+  // Don't render if user data is loading or not available
+  if (user === undefined) {
+    return (
+      <div className="flex items-center space-x-3 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700">
+        <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse" />
+        <span>Loading...</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Don't render if no user
+  }
 
   return (
     <div className="relative" ref={menuRef}>

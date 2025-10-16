@@ -23,17 +23,21 @@ export const addPaperFromArxiv = action({
     userId: v.id("users"),
   },
   handler: async (ctx: any, args: { input: string; userId: string }): Promise<any> => {
-    // Step 1: Parse ArXiv ID
-    const arxivId = parseArxivId(args.input);
-    if (!arxivId) {
-      throw new Error("Invalid ArXiv URL or ID format");
-    }
+    console.log("[ArXiv] Starting paper fetch:", { input: args.input, userId: args.userId });
+    const startTime = Date.now();
 
-    if (!isValidArxivId(arxivId)) {
-      throw new Error(`Invalid ArXiv ID: ${arxivId}`);
-    }
+    try {
+      // Step 1: Parse ArXiv ID
+      const arxivId = parseArxivId(args.input);
+      if (!arxivId) {
+        throw new Error("Invalid ArXiv URL or ID format");
+      }
 
-    console.log(`Fetching metadata for ${arxivId}...`);
+      if (!isValidArxivId(arxivId)) {
+        throw new Error(`Invalid ArXiv ID: ${arxivId}`);
+      }
+
+      console.log("[ArXiv] Parsed ID:", { arxivId });
 
     // Step 2: Check for duplicate (if PER-9 schema exists)
     let existing: any = null;
@@ -54,10 +58,9 @@ export const addPaperFromArxiv = action({
       console.log("Note: Could not check for duplicates (PER-9 not complete)");
     }
 
-    // Step 3: Fetch metadata from ArXiv
-    const metadata = await fetchArxivMetadata(arxivId);
-
-    console.log(`Downloading PDF (${metadata.title})...`);
+      // Step 3: Fetch metadata from ArXiv
+      const metadata = await fetchArxivMetadata(arxivId);
+      console.log("[ArXiv] Metadata fetched:", { title: metadata.title, arxivId });
 
     // Step 4: Download PDF
     const pdfUrl = metadata.pdfUrl;
@@ -67,11 +70,10 @@ export const addPaperFromArxiv = action({
       throw new Error(`Failed to download PDF: ${pdfResponse.status}`);
     }
 
-    // Step 5: Store PDF in Convex Storage
-    const pdfBlob = await pdfResponse.blob();
-    const pdfStorageId = await ctx.storage.store(pdfBlob);
-
-    console.log(`Storing PDF in Convex Storage...`);
+      // Step 5: Store PDF in Convex Storage
+      const pdfBlob = await pdfResponse.blob();
+      const pdfStorageId = await ctx.storage.store(pdfBlob);
+      console.log("[ArXiv] PDF stored:", { pdfStorageId, arxivId });
 
     // Step 6: Create paper in database (if PER-9 exists)
     let paperId;
@@ -97,12 +99,22 @@ export const addPaperFromArxiv = action({
       };
     }
 
-    console.log(`Paper added successfully!`);
+      const duration = Date.now() - startTime;
+      console.log("[ArXiv] Success:", { paperId, arxivId, duration });
 
-    return {
-      paperId,
-      ...metadata,
-      pdfStorageId,
-    };
+      return {
+        paperId,
+        ...metadata,
+        pdfStorageId,
+      };
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      console.error("[ArXiv] Failed:", {
+        input: args.input,
+        error: error instanceof Error ? error.message : String(error),
+        duration,
+      });
+      throw error;
+    }
   },
 });

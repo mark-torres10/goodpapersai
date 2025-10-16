@@ -1,8 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f1ea;
+  --foreground: #1f2937;
+  
+  /* Goodreads-inspired color palette */
+  --color-primary: #00635d;
+  --color-primary-hover: #004d48;
+  --color-secondary: #f4f1ea;
+  --color-accent: #d73b04;
+  
+  /* Status colors */
+  --color-to-read: #3b82f6;
+  --color-reading: #eab308;
+  --color-completed: #22c55e;
+  
+  /* Neutrals */
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
 }
 
 @theme inline {
@@ -13,7 +29,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #1a1a1a;
     --foreground: #ededed;
   }
 }
@@ -21,5 +37,54 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* Typography Hierarchy */
+h1 {
+  @apply text-3xl font-bold tracking-tight text-gray-900;
+}
+
+h2 {
+  @apply text-2xl font-semibold tracking-tight text-gray-900;
+}
+
+h3 {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+/* Body text utilities */
+.text-body {
+  @apply text-base text-gray-700 leading-relaxed;
+}
+
+.text-small {
+  @apply text-sm text-gray-600;
+}
+
+.text-tiny {
+  @apply text-xs text-gray-500;
+}
+
+/* Smooth transitions globally */
+* {
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shimmer animation for loading skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #f3f4f6 4%, #e5e7eb 25%, #f3f4f6 36%);
+  background-size: 1000px 100%;
 }

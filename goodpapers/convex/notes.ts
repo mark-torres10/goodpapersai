@@ -27,31 +27,43 @@ const saveNote = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    // Check if note already exists
-    const existingNote = await ctx.db
-      .query("notes")
-      .withIndex("by_paper", (q) => q.eq("paperId", args.paperId))
-      .first();
+    console.log("[Notes] Saving note:", { paperId: args.paperId, contentLength: args.content.length });
 
-    const now = Date.now();
+    try {
+      // Check if note already exists
+      const existingNote = await ctx.db
+        .query("notes")
+        .withIndex("by_paper", (q) => q.eq("paperId", args.paperId))
+        .first();
 
-    if (existingNote) {
-      // Update existing note
-      await ctx.db.patch(existingNote._id, {
-        content: args.content,
-        updatedAt: now,
+      const now = Date.now();
+
+      if (existingNote) {
+        // Update existing note
+        await ctx.db.patch(existingNote._id, {
+          content: args.content,
+          updatedAt: now,
+        });
+        console.log("[Notes] Updated successfully:", { noteId: existingNote._id, paperId: args.paperId });
+        return existingNote._id;
+      } else {
+        // Create new note
+        const noteId = await ctx.db.insert("notes", {
+          paperId: args.paperId,
+          userId: args.userId,
+          content: args.content,
+          createdAt: now,
+          updatedAt: now,
+        });
+        console.log("[Notes] Created successfully:", { noteId, paperId: args.paperId });
+        return noteId;
+      }
+    } catch (error) {
+      console.error("[Notes] Save failed:", { 
+        paperId: args.paperId, 
+        error: error instanceof Error ? error.message : String(error)
       });
-      return existingNote._id;
-    } else {
-      // Create new note
-      const noteId = await ctx.db.insert("notes", {
-        paperId: args.paperId,
-        userId: args.userId,
-        content: args.content,
-        createdAt: now,
-        updatedAt: now,
-      });
-      return noteId;
+      throw error;
     }
   },
 });
