@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface AddPaperModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function AddPaperModal({ isOpen, onClose, userId }: AddPaperModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   const addPaper = useAction(api.arxiv.actions.addPaperFromArxiv);
+  const { showToast } = useToast();
 
   // Handle Escape key to close modal
   useEffect(() => {
@@ -52,11 +54,14 @@ export function AddPaperModal({ isOpen, onClose, userId }: AddPaperModalProps) {
         userId: userId,
       });
 
-      // Success: close modal and reset
+      // Success: show toast, close modal and reset
+      showToast("Paper added successfully!", "success");
       setArxivUrl("");
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add paper");
+      const errorMessage = err instanceof Error ? err.message : "Failed to add paper";
+      setError(errorMessage);
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }

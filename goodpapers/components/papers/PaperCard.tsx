@@ -23,7 +23,7 @@ export function PaperCard({ paper }: PaperCardProps) {
   return (
     <Link
       href={`/paper/${paper._id}`}
-      className="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-indigo-300"
+      className="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:scale-[1.02] hover:border-indigo-300"
     >
       <div className="space-y-3">
         {/* Title */}

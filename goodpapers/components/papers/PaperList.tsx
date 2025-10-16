@@ -3,6 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { PaperCard } from "./PaperCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 
 interface PaperListProps {
@@ -58,14 +59,21 @@ function PaperListContent({
       : papers.filter((paper: Doc<"papers">) => paper.readingStatus === statusFilter);
 
   if (filteredPapers.length === 0) {
+    if (searchQuery) {
+      return (
+        <EmptyState
+          icon="🔍"
+          title="No papers found"
+          description="Try different keywords or check your spelling. You can also filter by reading status."
+        />
+      );
+    }
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-        <p className="text-gray-600">
-          {searchQuery
-            ? "No papers found. Try a different search."
-            : "No papers yet. Add your first paper!"}
-        </p>
-      </div>
+      <EmptyState
+        icon="📚"
+        title="No papers yet"
+        description="Start building your research library by adding your first paper from ArXiv. It's easy and free!"
+      />
     );
   }
 
@@ -86,11 +94,11 @@ function PaperListSkeleton() {
           key={i}
           className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
         >
-          <div className="space-y-3 animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-3/4" />
-            <div className="h-4 bg-gray-200 rounded w-1/2" />
-            <div className="h-4 bg-gray-200 rounded w-1/4" />
-            <div className="h-12 bg-gray-200 rounded" />
+          <div className="space-y-3">
+            <div className="h-6 rounded animate-shimmer" />
+            <div className="h-4 rounded w-3/4 animate-shimmer" />
+            <div className="h-4 rounded w-1/4 animate-shimmer" />
+            <div className="h-16 rounded animate-shimmer" />
           </div>
         </div>
       ))}
