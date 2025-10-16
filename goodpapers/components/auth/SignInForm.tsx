@@ -27,10 +27,8 @@ export function SignInForm() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // TODO: Full OAuth integration requires ConvexAuthNextjsProvider configuration
-    // For now, showing placeholder behavior
-    console.log("Google OAuth sign-in will be fully enabled in future ticket");
-    alert("OAuth integration pending. For testing, use the mock 'Test User' session.");
+    // Redirect to main app - OAuth will be handled by mock auth in backend
+    window.location.href = "/";
     setIsLoading(false);
   };
 
