@@ -26,17 +26,39 @@ const http = httpRouter();
 // Add authentication routes
 auth.addHttpRoutes(http);
 
+// Handle CORS preflight for PDF requests
+http.route({
+  path: "/pdf/:storageId",
+  method: "OPTIONS",
+  handler: httpAction(async () => {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Max-Age": "86400",
+      },
+    });
+  }),
+});
+
 // Serve PDF from Convex Storage
 http.route({
   path: "/pdf/:storageId",
   method: "GET",
   handler: httpAction(async (ctx: any, request: any) => {
-    // Extract storage ID from URL
-    const urlParts = request.url.split("/pdf/");
-    const storageId = urlParts[1];
+    // Extract and safely decode storage ID from URL
+    const url = new URL(request.url);
+    const storageId = decodeURIComponent(url.pathname.split("/pdf/")[1] || "");
 
     if (!storageId) {
-      return new Response("Storage ID required", { status: 400 });
+      return new Response("Storage ID required", { 
+        status: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
 
     try {
@@ -44,22 +66,32 @@ http.route({
       const blob = await ctx.storage.get(storageId as any);
 
       if (!blob) {
-        return new Response("PDF not found", { status: 404 });
+        return new Response("PDF not found", { 
+          status: 404,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
       }
 
-      // Return PDF with proper headers
+      // Return PDF with proper headers including CORS
       return new Response(blob, {
         status: 200,
         headers: {
-          "Content-Type": blob.contentType || "application/pdf",
-          "Content-Length": blob.size?.toString(),
+          "Content-Type": "application/pdf",
           "Cache-Control": "public, max-age=31536000", // Cache for 1 year
           "Access-Control-Allow-Origin": "*", // Allow CORS for PDF viewer
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
         },
       });
     } catch (error) {
       console.error("Error serving PDF:", error);
-      return new Response("Internal server error", { status: 500 });
+      return new Response("Internal server error", { 
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
   })
 });

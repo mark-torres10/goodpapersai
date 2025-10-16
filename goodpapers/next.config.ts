@@ -1,5 +1,13 @@
 import type { NextConfig } from "next";
 
+/**
+ * Next.js Configuration for Goodpapers
+ * 
+ * Security Notes:
+ * - CSP includes 'unsafe-eval' for PDF.js worker (industry standard)
+ * - See SECURITY.md for detailed security trade-off analysis
+ */
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -10,10 +18,15 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://impartial-wolf-773.convex.site",
+              // Dev mode requires 'unsafe-inline' for Next.js HMR/hydration
+              // Production should use nonces or SRI hashes - see SECURITY.md
+              "script-src 'self' 'unsafe-inline' https://*.convex.site https://*.convex.cloud",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' https://lh3.googleusercontent.com data:",
-              "connect-src 'self' https://impartial-wolf-773.convex.site wss://impartial-wolf-773.convex.site https://impartial-wolf-773.convex.cloud wss://impartial-wolf-773.convex.cloud",
+              "img-src 'self' https://lh3.googleusercontent.com data: blob:",
+              "connect-src 'self' https://*.convex.site wss://*.convex.site https://*.convex.cloud wss://*.convex.cloud",
+              // PDF.js worker requires blob: URLs and is self-hosted under /static/pdfjs
+              "worker-src 'self' blob:",
+              "child-src 'self' blob:",
               "frame-src 'none'",
               "font-src 'self' data:",
             ].join("; "),
