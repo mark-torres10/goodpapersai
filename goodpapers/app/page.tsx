@@ -11,6 +11,7 @@ import { StatusFilter, type ReadingStatus } from "@/components/papers/StatusFilt
 import { AddPaperModal } from "@/components/papers/AddPaperModal";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");

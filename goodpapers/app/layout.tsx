@@ -15,6 +15,9 @@ import ConvexClientProvider from "./ConvexClientProvider";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { Analytics } from "@vercel/analytics/react";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 // Configure Inter font from Google Fonts
 const inter = Inter({
   subsets: ["latin"],

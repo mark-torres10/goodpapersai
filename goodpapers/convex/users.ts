@@ -22,38 +22,15 @@ import { auth } from "./auth";
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    // Check if mock authentication is enabled (set via environment variable)
-    // SECURITY: This should ONLY be enabled in development
-    // Production deployments should NOT have ENABLE_MOCK_AUTH set
-    const enableMockAuth = process.env.ENABLE_MOCK_AUTH === "true";
+    // Use real authentication - no more mock auth
+    const userId = await auth.getUserId(ctx);
     
-    // PRODUCTION: Use real authentication
-    if (!enableMockAuth) {
-      const userId = await auth.getUserId(ctx);
-      
-      if (!userId) {
-        return null;
-      }
+    if (!userId) {
+      return null;
+    }
 
-      const user = await ctx.db.get(userId);
-      return user;
-    }
-    
-    // DEVELOPMENT/TEST: Use mock test user
-    // Only returns the specific test user by email - never returns arbitrary users
-    const testUser = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("email"), "test@goodpapers.dev"))
-      .first();
-    
-    if (testUser) {
-      return testUser;
-    }
-    
-    // If test user doesn't exist, return null
-    // User must be created via setup:createTestUser mutation
-    console.warn("Test user not found. Run: npx convex run setup:createTestUser");
-    return null;
+    const user = await ctx.db.get(userId);
+    return user;
   },
 });
 

@@ -13,6 +13,7 @@
  */
 
 import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 /**
  * Sign In Form
@@ -24,16 +25,38 @@ import { useState } from "react";
  */
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  
+  // Get auth actions - must be called unconditionally
+  const authActions = useAuthActions();
 
   const handleGoogleSignIn = async () => {
+    if (!authActions?.signIn) {
+      console.error("Sign in not available");
+      setAuthError("Authentication not available. Please refresh the page.");
+      return;
+    }
+    
     setIsLoading(true);
-    // Redirect to main app - OAuth will be handled by mock auth in backend
-    window.location.href = "/";
-    setIsLoading(false);
+    setAuthError(null);
+    try {
+      await authActions.signIn("google");
+    } catch (error) {
+      console.error("Sign in failed:", error);
+      setAuthError("Sign in failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="mt-8 space-y-6">
+      {authError && (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+          <p className="text-sm text-red-600">{authError}</p>
+        </div>
+      )}
+      
       <button
         onClick={handleGoogleSignIn}
         disabled={isLoading}
